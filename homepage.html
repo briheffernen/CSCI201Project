@@ -89,11 +89,11 @@ button:focus {
         <div id="mapsection">
             <form action="" method="" id="google-form">
                 <div class="row centerme">
-                    <div class="col-10">
+                    <div class="col-xs-12 col-md-10">
                         <input type="text" name="" id="address" class="form-control" placeholder="Enter an address...">
                     </div>
                     <!-- .form-group -->
-                    <div class="col-2">
+                    <div class="col-xs-12 col-md-2">
                         <button type="submit" class="btn btn-primary btn-block">Search</button>
                     </div>
                     <!-- .form-group -->
@@ -126,6 +126,39 @@ button:focus {
     </div>
     <!-- .container-fluid -->
     <script type="text/javascript">
+    
+    //====================================== Buttons at the top ===================================================
+
+    //Adjusts the appearance of the search type buttons and replaces the page content
+    document.getElementById("locationSearch").onclick = function() {
+        if (this.classList.contains('btn-disabled')) {
+            this.classList.remove('btn-disabled');
+            document.getElementById("userSearch").classList.add('btn-disabled');
+            // this.classList.add('btn-success');
+            // this.innerHTML = "Searching for Users";
+            document.getElementById("usersection").style.display = "none";
+            document.getElementById("mapsection").style.display = "block";
+            // document.getElementById("mapsection").style.display = "none";
+            // document.getElementById("usersection").style.display = "block";
+        }
+    }
+
+    document.getElementById("userSearch").onclick = function() {
+        if (this.classList.contains('btn-disabled')) {
+            this.classList.remove('btn-disabled');
+            document.getElementById("locationSearch").classList.add('btn-disabled');
+            // this.classList.add('btn-success');
+            // this.innerHTML = "Searching for Users";
+
+            document.getElementById("mapsection").style.display = "none";
+            document.getElementById("usersection").style.display = "block";
+        }
+    }
+
+
+
+    //====================================== Creating a Map ===================================================
+
     var map;
     var marker;
     var validQuery = "";
@@ -168,7 +201,6 @@ button:focus {
                 });
 
                 // currentLocation.setIcon('https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png')
-
                 // infoWindow.setPosition(pos);
                 // infoWindow.setContent('Location found.');
                 // infoWindow.open(map);
@@ -192,7 +224,7 @@ button:focus {
 
         google.maps.event.addListener(map, 'click', function(event) {
             placeMarker(event.latLng);
-            geocodeLatLng(geocoder, map, infoWindow, event.latLng);
+            geocodeLatLng(geocoder, map, infoWindow, event.latLng, "click");
         });
 
 
@@ -213,13 +245,15 @@ button:focus {
         }
 
         // this function converts geocode (latitude and longitude) to a recognizable address
-        function geocodeLatLng(geocoder, map, infoWindow, latlng) {
+        function geocodeLatLng(geocoder, map, infoWindow, latlng, requestType) {
             geocoder.geocode({ 'location': latlng }, function(results, status) {
                 if (status === 'OK') {
                     if (results[0]) {
                         infoWindow.setContent(results[0].formatted_address);
                         infoWindow.open(map, marker);
-                        document.getElementById("address").value = results[0].formatted_address;
+                        if (requestType == "click") {
+                            document.getElementById("address").value = results[0].formatted_address;
+                        }
                         validQuery = results[0].formatted_address;
                         document.getElementById('meetingAddress').value = validQuery;
                         console.log(document.getElementById('meetingAddress').value);
@@ -302,7 +336,8 @@ button:focus {
 
                     map.setCenter(results[0].geometry.location);
                     marker.setPosition(results[0].geometry.location);
-                    geocodeLatLng(geotest, map, infoWindow, results[0].geometry.location);
+                    geocodeLatLng(geotest, map, infoWindow, results[0].geometry.location, "search");
+                    //don't update the address bar in this case
                     console.log("The address is: " + results[0].geometry.location);
                 }
             );
@@ -317,33 +352,20 @@ button:focus {
 
 
 
-    //If a user starts typing 
-    // document.getElementById("address").oninput = disableCreateMeetingButton();
-
-    //This function disables and enables the Create Meeting button
-    document.getElementById("address").addEventListener('input', function() {
-
-        if ((document.getElementById("address").value !== "") && (document.getElementById("createmeeting_button").disabled = false)) {
-            validQuery = document.getElementById("address").value;
-            disableCreateMeetingButton();
-        } else if (document.getElementById("address").value.toUpperCase() == validQuery.toUpperCase()) {
-            enableCreateMeetingButton();
-        } else {
-            disableCreateMeetingButton();
-        }
-
-    });
+    //====================================== Creating a Meeting ===================================================
 
     //These functions define the disable and enable createMeeting buttons
-    function disableCreateMeetingButton() {
-        document.getElementById("createmeeting_button").disabled = true;
-    }
+
 
     function enableCreateMeetingButton() {
         if (!document.querySelector("#address").value.trim() == "") {
             document.getElementById("createmeeting_button").disabled = false;
         }
     }
+
+    // function disableCreateMeetingButton() {
+    //     document.getElementById("createmeeting_button").disabled = true;
+    // }
 
     // document.getElementById("address").oninput = function() {
     //     if (document.getElementById("address").value.length == 0) {
@@ -353,32 +375,20 @@ button:focus {
     //     }
     // }
 
+    //This function disables and enables the Create Meeting button
+    // document.getElementById("address").addEventListener('input', function() {
+    //     console.log(document.getElementById("address").value);
+    //     console.log("valid query: " + validQuery);
+    //     if ((document.getElementById("address").value !== "") && (document.getElementById("createmeeting_button").disabled = false)) {
+    //         validQuery = document.getElementById("address").value;
+    //         disableCreateMeetingButton();
+    //     } else if (document.getElementById("address").value.toUpperCase() == validQuery.toUpperCase()) {
+    //         enableCreateMeetingButton();
+    //     } else {
+    //         disableCreateMeetingButton();
+    //     }
 
-    //Adjusts the appearance of the search type buttons and replaces the page content
-    document.getElementById("locationSearch").onclick = function() {
-        if (this.classList.contains('btn-disabled')) {
-            this.classList.remove('btn-disabled');
-            document.getElementById("userSearch").classList.add('btn-disabled');
-            // this.classList.add('btn-success');
-            // this.innerHTML = "Searching for Users";
-            document.getElementById("usersection").style.display = "none";
-            document.getElementById("mapsection").style.display = "block";
-            // document.getElementById("mapsection").style.display = "none";
-            // document.getElementById("usersection").style.display = "block";
-        }
-    }
-
-    document.getElementById("userSearch").onclick = function() {
-        if (this.classList.contains('btn-disabled')) {
-            this.classList.remove('btn-disabled');
-            document.getElementById("locationSearch").classList.add('btn-disabled');
-            // this.classList.add('btn-success');
-            // this.innerHTML = "Searching for Users";
-
-            document.getElementById("mapsection").style.display = "none";
-            document.getElementById("usersection").style.display = "block";
-        }
-    }
+    // });
     </script>
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=initMap"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
