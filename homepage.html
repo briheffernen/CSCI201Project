@@ -58,10 +58,14 @@ button:focus {
 .btn-lg:hover {
     cursor: pointer;
 }
+
+.row {
+    text-align: center;
+}
 </style>
 
 <body>
-    <nav class="navbar navbar-light bg-light navbar-expand-lg fixed-top">
+    <nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
         <a href="#" class="navbar-brand">When and Where</a>
         <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -90,11 +94,11 @@ button:focus {
             <form action="" method="" id="google-form">
                 <div class="row centerme">
                     <div class="col-xs-12 col-md-10">
-                        <input type="text" name="" id="address" class="form-control" placeholder="Enter an address...">
+                        <input type="text" name="" id="address" class="form-control" placeholder="Enter an address or drop a pin in the map">
                     </div>
                     <!-- .form-group -->
                     <div class="col-xs-12 col-md-2">
-                        <button type="submit" class="btn btn-primary btn-block">Search</button>
+                        <button type="submit" class="btn btn-primary col-xs-12 btn-block" id="locationSearchButton">Search</button>
                     </div>
                     <!-- .form-group -->
                 </div>
@@ -112,12 +116,12 @@ button:focus {
         <div id="usersection">
             <form action="" method="" id="google-form">
                 <div class="row centerme">
-                    <div class="col-10">
+                    <div class="col-xs-12 col-md-10">
                         <input type="text" name="" id="user" class="form-control" placeholder="Enter a username...">
                     </div>
                     <!-- .form-group -->
-                    <div class="col-2">
-                        <button type="submit" class="btn btn-success btn-block">Search</button>
+                    <div class="col-xs-12 col-md-2">
+                        <button type="submit" class="btn btn-success col-xs-12 btn-block" id="userSearchButton">Search</button>
                     </div>
                     <!-- .form-group -->
                 </div>
@@ -126,7 +130,6 @@ button:focus {
     </div>
     <!-- .container-fluid -->
     <script type="text/javascript">
-    
     //====================================== Buttons at the top ===================================================
 
     //Adjusts the appearance of the search type buttons and replaces the page content
