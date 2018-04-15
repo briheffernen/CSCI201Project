@@ -1,135 +1,264 @@
-<!DOCTYPE html>
+<%@page import="java.sql.SQLException, java.io.IOException, java.sql.Connection, java.sql.DriverManager, java.sql.PreparedStatement, java.sql.ResultSet, java.sql.SQLException, java.sql.Statement, java.util.ArrayList"
+%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-
 <head>
-    <title>Homepage</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Homepage</title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+<script type="text/javascript">
+    function stopRKey(evt) {
+        var evt = (evt) ? evt : ((event) ? event : null);
+        var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+        if ((evt.keyCode == 13) && (node.type == "text")) { return false; }
+    }
+
+    document.onkeypress = stopRKey;
+    </script>
 </head>
 <style>
 #searchoptions {
-    margin-top: 60px;
-    text-align: center;
-    font-size: 50px;
+	margin-top: 60px;
+	text-align: center;
+	font-size: 50px;
 }
 
 #map {
-    height: 400px;
-    width: 90%;
-    margin: auto auto;
+	height: 400px;
+	width: 90%;
+	margin: auto auto;
 }
 
 .centerme {
-    margin: auto auto;
-    width: 80%;
+	margin: auto auto;
+	width: 80%;
 }
 
 #mapsection {
-    padding-top: 40px;
-    padding-bottom: 30px;
+	padding-top: 40px;
+	padding-bottom: 30px;
 }
 
 #usersection {
-    padding-top: 40px;
-    display: none;
+	padding-top: 40px;
+	display: none;
 }
 
 #createmeeting_button {
-    margin: 20px auto;
-    width: 200px;
+	margin: 20px auto;
+	width: 200px;
 }
 
 button:focus {
-    outline: none !important;
+	outline: none !important;
 }
 
 .btn-disabled {
-    opacity: 0.5;
+	opacity: 0.5;
 }
 
 .fader {
-    -webkit-transition: .6s;
-    transition: .6s;
+	-webkit-transition: .6s;
+	transition: .6s;
 }
 
 .btn:hover {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .btn-lg:hover {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .row {
-    text-align: center;
+	text-align: center;
 }
 </style>
 
 <body>
-    <nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
-        <a href="#" class="navbar-brand">When and Where</a>
-        <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="navbar-item">
-                    <a href="#" class="nav-link">Profile</a>
-                </li>
-                <li class="navbar-item">
-                    <a href="#" class="nav-link">Settings</a>
-                </li>
-                <li class="navbar-item">
-                    <a href="#" class="nav-link">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div class="container-fluid">
-        <div id="searchoptions">
-            <button type="button" class="btn-lg btn-primary fader" href="#" id="locationSearch" title="Click to toggle">Searching for locations</button>
-            <button type="button" class="btn-lg btn-success btn-disabled fader" href="#" id="userSearch" title="Click to toggle">Searching for users</button>
-        </div>
-        <!-- div container with map search -->
-        <div id="mapsection">
-            <form action="" method="" id="google-form">
-                <div class="row centerme">
-                    <div class="col-xs-12 col-md-10">
-                        <input type="text" name="" id="address" class="form-control" placeholder="Enter an address or drop a pin in the map">
-                    </div>
-                    <!-- .form-group -->
-                    <div class="col-xs-12 col-md-2">
-                        <button type="submit" class="btn btn-primary col-xs-12 btn-block" id="locationSearchButton">Search</button>
-                    </div>
-                    <!-- .form-group -->
-                </div>
-            </form>
-            <form action="" method="GET" id="createMeeting">
-                <div class="centerme">
-                    <input type="hidden" name="meetingAddress" id="meetingAddress" value="">
-                    <button type="submit" class="btn btn-primary btn-block" id="createmeeting_button" disabled>Create Meeting</button>
-                </div>
-            </form>
-            <div id="map">
-            </div>
-        </div>
-        <!-- div container with user search -->
-        <div id="usersection">
-            <form action="" method="" id="google-form">
-                <div class="row centerme">
-                    <div class="col-xs-12 col-md-10">
-                        <input type="text" name="" id="user" class="form-control" placeholder="Enter a username...">
-                    </div>
-                    <!-- .form-group -->
-                    <div class="col-xs-12 col-md-2">
-                        <button type="submit" class="btn btn-success col-xs-12 btn-block" id="userSearchButton">Search</button>
-                    </div>
-                    <!-- .form-group -->
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- .container-fluid -->
-    <script type="text/javascript">
+	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
+	<a href="#" class="navbar-brand">When and Where</a>
+	<button class="navbar-toggler" data-toggle="collapse"
+		data-target="#navbarCollapse">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarCollapse">
+		<ul class="navbar-nav ml-auto">
+			<li class="navbar-item"><a href="#" class="nav-link">Profile</a>
+			</li>
+			<li class="navbar-item"><a href="#" class="nav-link">Settings</a>
+			</li>
+			<li class="navbar-item"><a href="#" class="nav-link">Logout</a>
+			</li>
+		</ul>
+	</div>
+	</nav>
+	<div class="container-fluid">
+		<div id="searchoptions">
+			<button type="button" class="btn-lg btn-primary fader" href="#"
+				id="locationSearch" title="Click to toggle">Searching for
+				locations</button>
+			<button type="button" class="btn-lg btn-success btn-disabled fader"
+				href="#" id="userSearch" title="Click to toggle">Searching
+				for users</button>
+		</div>
+		<!-- div container with map search -->
+		<div id="mapsection">
+			<form action="" method="" id="google-form">
+				<div class="row centerme">
+					<div class="col-xs-12 col-md-10">
+						<input type="text" name="" id="address" class="form-control"
+							placeholder="Enter an address or drop a pin in the map">
+					</div>
+					<!-- .form-group -->
+					<div class="col-xs-12 col-md-2">
+						<button type="submit" class="btn btn-primary col-xs-12 btn-block"
+							id="locationSearchButton">Search</button>
+					</div>
+					<!-- .form-group -->
+				</div>
+			</form>
+			<form action="" method="GET" id="createMeeting">
+				<div class="centerme">
+					<input type="hidden" name="meetingAddress" id="meetingAddress"
+						value="">
+					<button type="submit" class="btn btn-primary btn-block"
+						id="createmeeting_button" disabled>Create Meeting</button>
+				</div>
+			</form>
+			<div id="map"></div>
+		</div>
+		<!-- div container with user search -->
+		<div id="usersection">
+			<form action="" method="" id="google-form">
+				<div class="row centerme">
+					<div class="col-xs-12 col-md-10">
+						<input type="text" name="" id="user" class="form-control"
+							placeholder="Enter a username...">
+					</div>
+					<!-- .form-group -->
+					<div class="col-xs-12 col-md-2">
+						<button type="button" class="btn btn-success col-xs-12 btn-block"
+							id="userSearchButton" onclick="userSearch()">Search</button>
+					</div>
+					<!-- .form-group -->
+				</div>
+			</form>
+			<!-- user results -->
+			<div id="userResults">
+				<table class="table table-responsive table-striped col-12 mt-3">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>User</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- Our template -->
+						<tr>
+							<td>1</td>
+							<td>The Beatles</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!-- .container-fluid -->
+	<script type="text/javascript">
+    //====================================== Users search ===================================================
+    function userSearch() {
+        //store the query value
+        var query = document.getElementById("user").value;
+
+        <%
+    	//connect to the database
+    	Connection conn = null;
+        Statement st = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/Users?user=root&password=Iaminla123&useSSL=false");
+            st = conn.createStatement();
+            String name = "Sheldon";
+            // rs = st.executeQuery("SELECT * from Student where fname='" + name + "'");
+            ps = conn.prepareStatement("SELECT * FROM Student WHERE fname=?");
+            ps.setString(1, name); // set first variable in prepared statement
+            
+
+//get the results back
+    //iterate through the object and populate the userResults div with whatever was returned
+    // !remember to attach link to userprofile page by appending the id
+            rs = ps.executeQuery();
+            int i = 1;
+            while (rs.next()) { %>
+            //Create the row
+            var row = document.createElement("tr");
+
+            var rowNumber = document.createElement("td");
+            rowNumber.innerHTML = <%= i++ %>;
+
+            //Create the data cell
+            var userCell = document.createElement("td");
+
+            //create a link that will surround the username
+            var userLink = document.createElement("a");
+            var url = "userprofile.jsp?userID=" + "<%= rs.getString("userID") %>";
+            //set the link to the userprofile page
+            userLink.setAttribute('href', url);
+            //populate the link's html with the actual username
+            userLink.innerHTML = <%= rs.getString("username") %>;
+
+            //append the link to the userCell
+            userCell.appendChild(userLink);
+            //append the tds to the actual row
+            row.appendChild(rowNumber);
+            row.appendChild(userCell);
+
+            //Append our <tr> 
+            document.querySelector("tbody").appendChild(row);
+            <%
+        }
+    
+    } catch (SQLException sqle) {
+        System.out.println("SQLException: " + sqle.getMessage());
+    } catch (ClassNotFoundException cnfe) {
+        System.out.println("ClassNotFoundException: " + cnfe.getMessage());
+    } finally {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (st != null) {
+                st.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException sqle) {
+            System.out.println("sqle: " + sqle.getMessage());
+        }
+    } %>
+
+
+    return false;
+    }
+
+
+
+
+
+
+
     //====================================== Buttons at the top ===================================================
 
     //Adjusts the appearance of the search type buttons and replaces the page content
@@ -168,6 +297,62 @@ button:focus {
     var geocoder;
     var infoWindow;
 
+    //This function adds the current location button on the bottom right of the map
+    function addYourLocationButton(map, marker) {
+        var controlDiv = document.createElement('div');
+
+        var firstChild = document.createElement('button');
+        firstChild.style.backgroundColor = '#fff';
+        firstChild.style.border = 'none';
+        firstChild.style.outline = 'none';
+        firstChild.style.width = '28px';
+        firstChild.style.height = '28px';
+        firstChild.style.borderRadius = '2px';
+        firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+        firstChild.style.cursor = 'pointer';
+        firstChild.style.marginRight = '10px';
+        firstChild.style.padding = '0';
+        firstChild.title = 'Your Location';
+        controlDiv.appendChild(firstChild);
+
+        var secondChild = document.createElement('div');
+        secondChild.style.margin = '5px';
+        secondChild.style.width = '18px';
+        secondChild.style.height = '18px';
+        secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-2x.png)';
+        secondChild.style.backgroundSize = '180px 18px';
+        secondChild.style.backgroundPosition = '0 0';
+        secondChild.style.backgroundRepeat = 'no-repeat';
+        firstChild.appendChild(secondChild);
+
+        google.maps.event.addListener(map, 'center_changed', function() {
+            secondChild.style['background-position'] = '0 0';
+        });
+
+        firstChild.addEventListener('click', function() {
+            var imgX = 0,
+                animationInterval = setInterval(function() {
+                    imgX = -imgX - 18;
+                    secondChild.style['background-position'] = imgX + 'px 0';
+                }, 500);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    map.setCenter(latlng);
+                    clearInterval(animationInterval);
+                    secondChild.style['background-position'] = '-144px 0';
+                });
+            } else {
+                clearInterval(animationInterval);
+                secondChild.style['background-position'] = '0 0';
+            }
+        });
+
+        controlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
+    }
+
     function initMap() {
         var mapOptions = {
             zoom: 15,
@@ -202,6 +387,9 @@ button:focus {
                         scaledSize: new google.maps.Size(28, 28)
                     }
                 });
+
+                //this adds the current location button
+                addYourLocationButton(map, currentLocation);
 
                 // currentLocation.setIcon('https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png')
                 // infoWindow.setPosition(pos);
@@ -355,6 +543,8 @@ button:focus {
 
 
 
+
+
     //====================================== Creating a Meeting ===================================================
 
     //These functions define the disable and enable createMeeting buttons
@@ -393,10 +583,19 @@ button:focus {
 
     // });
     </script>
-    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=initMap"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script
+		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=initMap"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+		crossorigin="anonymous"></script>
 </body>
 
 </html>
