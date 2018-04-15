@@ -8,7 +8,9 @@ userName varchar(50) not null
 );
 CREATE TABLE meeting (
 meetingID int(11) primary key not null auto_increment,
-meetingTime varchar(50) not null
+meetingTime DATETIME not null,
+meetingLocation varchar(50) not null,
+meetingName varchar(50) not null
 );
 
 CREATE TABLE meeting_users(
