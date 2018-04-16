@@ -539,7 +539,7 @@ button:focus {
 				map : map
 			});
 
-			//This function generates 
+			//This function generates the location of the 
 			document.querySelector("#google-form").onsubmit = function() {
 
 				var addressInput = document.querySelector("#address").value

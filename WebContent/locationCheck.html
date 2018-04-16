@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    //this is a javascript object that contains the user's longitude and latitude
+    var userPos;
+
+    //This is the name of the place the meeting is happening --> this is what needs to be updated!
+    var meetingPosString = "Leavey Library";
+
+
+    function checkUserLocation() {
+        geocoder = new google.maps.Geocoder;
+        var meetingPos = {};
+
+        //this function converts a name of a location to coordinates
+        function getCoordinates(locationName) {
+            geocoder.geocode({
+                    address: locationName
+                },
+                function(results) { // This anonymous function runs when geocode() is done 
+                    meetingPos = {
+                        lat: results[0].geometry.location.lat(),
+                        lng: results[0].geometry.location.lng()
+                    }
+                    console.log("The meeting coordinates are: (" + meetingPos.lat + ", " + meetingPos.lng + ")");
+
+                    // Try getting the location of the user
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            var userPos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+
+                            console.log("The user's coordinates are: (" + userPos.lat + ", " + userPos.lng + ")");
+
+                            //Now that you have the longitude and latitude, compare the values of the User's position to the Meeting's position
+
+                            var threshold = 0.01;
+
+                            //compare first the latitude
+                            if (((Math.abs(userPos.lat) < (Math.abs(meetingPos.lat) + threshold)) &&
+                                    (Math.abs(userPos.lat) > (Math.abs(meetingPos.lat) - threshold))) &&
+                                ((Math.abs(userPos.lat) < (Math.abs(meetingPos.lat) + threshold)) &&
+                                    (Math.abs(userPos.lat) > (Math.abs(meetingPos.lat) - threshold)))) {
+                                //latitude is on point, now check the longitude
+
+                                console.log("User can check in!");
+
+                            } else {
+                                console.log("User is not near the location spot");
+                            }
+
+                        });
+                    } else {
+                        // Browser doesn't support Geolocation (i.e. you can't get the user's location)
+                        console.log("There is an error with finding the current location of the user");
+                    }
+                });
+        }
+        getCoordinates(meetingPosString);
+    }
+    </script>
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=checkUserLocation"></script>
+</body>
+</html

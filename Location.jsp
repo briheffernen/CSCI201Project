@@ -27,7 +27,6 @@
 			return true; 
 		}
 		
-		
 	</script>
 </head>
 <style>
