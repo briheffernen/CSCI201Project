@@ -25,7 +25,9 @@
 				document.getElementById("reviews").innerHTML = xhttp.responseText; 
 			}
 			return true; 
-		}	
+		}
+		
+		
 	</script>
 </head>
 <style>
@@ -82,14 +84,22 @@
     		<input id = "submit" type = "submit">
     </form>
     
-    
     <script type="text/javascript">
 
     //====================================== Creating a Map ===================================================
 
     var map;
-	var tempAddy = sessionStorage.address.trim(); 
-	var addy = tempAddy.split(' ').join('+');
+	var tempAddy = location.search.split('VAR=')[1] 
+	var addy;
+	
+	var isAnAddition = sessionStorage.address; 
+	
+	if (tempAddy != null) {
+		addy = tempAddy.split('%20').join('+');
+	} else {
+		addy = isAnAddition; 
+	}
+	
 	var marker; 
     var geocoder;
 	

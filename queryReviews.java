@@ -51,9 +51,7 @@ public class queryReviews extends HttpServlet {
 				String name = search.replaceAll("\\s+", "");
 				System.out.println("Query with " + name);
 
-				ps.setString(1, name); // set first variable in prepared statement
-
-				// Now now longer subject to SQL Injection
+				ps.setString(1, name);
 
 				rs = ps.executeQuery();
 
