@@ -132,6 +132,11 @@
 				<input type="submit" name="submit" value="Create a Meeting" />
 			</form>
 		</div>
+		
+		<form name="add_calendar" method="GET" action = "SubmitCalendar.jsp">
+			<input type="submit" name="submit" value = "Add Calendar" />
+		</form>
+		
 		<div id = "meetings">
 			<h3>Meetings</h3>
 			<table>
