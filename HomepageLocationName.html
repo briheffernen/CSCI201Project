@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script> 
+	google.maps.event.addListener(map,'click',function(event) {
+	    if (event.placeId) {
+	      getname(event.placeId)
+	    } else {
+	      geocoder
+	        .geocode({
+	            'latLng': event.latLng
+	          },
+	          function(results, status) {
+	            if (status == google.maps.GeocoderStatus.OK) {
+	              if (results[0]) {
+	                getname(results[0].place_id);
+	              }
+	
+	            }
+	          });
+	    }
+	  });
+	
+	function getname(place_id) {
+		var placesService = new google.maps.places.PlacesService(map);
+		placesService.getDetails({
+	  		placeId: place_id
+		}, function(results, status) {
+			infoWindow.setContent(results.name);
+			infoWindow.open(map, marker);
+		
+			document.getElementById("address").value = results.name;
+	
+			validQuery = results.name;
+			document.getElementById('meetingAddress').value = validQuery;
+			console.log(document.getElementById('meetingAddress').value);
+			enableCreateMeetingButton();
+	
+		});
+	}
+
+</script>
+</body>
+</html>
