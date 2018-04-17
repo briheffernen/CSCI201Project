@@ -28,6 +28,9 @@ public class CreateTeam extends HttpServlet {
 		// TODO Auto-generated method stub
 		String pageToForward = "/TeamPage.jsp";
 		String teamName = request.getParameter("teamName");
+		HttpSession mySession = request.getSession();
+		String currentUserID = (String) mySession.getAttribute("userID");
+		String currentUserName = (String) mySession.getAttribute("userName");
 		if (teamName == null || teamName.equals(""))
 		{
 			pageToForward = "/CreateATeam.jsp";
@@ -41,12 +44,13 @@ public class CreateTeam extends HttpServlet {
 		
 		request.setAttribute("memberCount", memberCount);
 		ArrayList<String> teamMembers = new ArrayList<String>();
-		
+		teamMembers.add(currentUserName);
+		request.setAttribute("teamMember1", currentUserName);
 		for (int i=0; i<numMembers; i++)
 		{
-			int j = i+1;
+			int j = i+2;
 			String tM = "teamMember" + j;
-			
+			System.out.println("team MEMBER ADD" + request.getParameter(tM));
 			if (request.getParameter(tM) == null)
 			{
 				pageToForward = "/CreateATeam.jsp";
@@ -62,10 +66,16 @@ public class CreateTeam extends HttpServlet {
 				pageToForward = "/CreateATeam.jsp";
 				request.setAttribute("memberError", "Error: Team Members cannot be empty or duplicates.");
 			}
+			if (currentUserName.equals(request.getParameter(tM)))
+			{
+				pageToForward = "/CreateATeam.jsp";
+				request.setAttribute("memberError", "Error: Team Members cannot be empty or duplicates.");
+			}
 			teamMembers.add(request.getParameter(tM));
 			request.setAttribute(tM, teamMembers.get(i));
 			
 		}
+		
 		
 		request.setAttribute("teamName",teamName);
 	
@@ -84,7 +94,7 @@ public class CreateTeam extends HttpServlet {
 				st = conn.createStatement();
 				String ps = "INSERT INTO Team (teamName) VALUES ('" + teamName + "');";
 				st.execute(ps);
-				String test = "SELECT t.teamID FROM Team t WHERE teamName='" + teamName +"';";
+				
 
 				rs = st.executeQuery("SELECT t.teamID FROM Team t WHERE teamName='" + teamName +"';");
 				//rs = st.executeQuery("SELECT s.fname, s.lname, c.prefix, c.num, g.letterGrade " +  " FROM Student s, Grade g, Class c" + " WHERE fname='" + firstName + "' " + " AND s.studentID=g.studentID AND c.classID = g.classID;"); // query returns a table, update used with insert or update and returns an int for how many rows updated
@@ -125,8 +135,7 @@ public class CreateTeam extends HttpServlet {
 				}
 			}
 		}
-		HttpSession mySession = request.getSession();
-		mySession.setAttribute("currentUser", teamName);
+		
 		
 		RequestDispatcher dispatch = getServletContext().getRequestDispatcher(pageToForward);
 		dispatch.forward(request, response);

@@ -47,7 +47,7 @@ try {
 	while (rs.next()) {
 		String userName = rs.getString("userName");
 		String userID = rs.getString("userID");
-		users.add(userID);
+		users.add(userName);
 		userNametoID.put(userName, userID);
 		
 	}
@@ -102,9 +102,10 @@ try {
 	}
 	function sendMessage() {
 		var message = "";
-		for (var i=0; i<countBox-1; i++)
+		alert(countBox);
+		for (var i=0; i<countBox-2; i++)
 			{
-				var num = i+1;
+				var num = i+2;
 				var id = 'teamMember' + num;
 				message += document.getElementById(id).value + ',';
 			}
@@ -165,7 +166,7 @@ try {
 		<br>
 		
 		Team Member 1 
-						<input id="teamMember1" name="teamMember1" list="users">
+						<input id="teamMember2" name="teamMember2" list="users">
 						<datalist id="users"> 
 						<%
 							for (int i=0; i<users.size(); i++)
@@ -189,7 +190,7 @@ try {
 <span id="response"></span>
 <input type = "hidden" id="numMembers" name = "memberCount">
 <script>
-var countBox =2;
+var countBox =3;
 var boxName = 0;
 document.getElementById('numMembers').value = 1;
 function addInput()

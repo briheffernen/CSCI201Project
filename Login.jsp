@@ -12,22 +12,17 @@
   </script>
   <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
   </script>
-		<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
-	<style>
-	
-	
-	</style>
-	
+
 	</head>
 	<body>
 	<form id="form"></form>
 	<div>
 		<h1>Welcome!</h1>
-		<h2>Click the button below to sign in.</h2>
+		<h2>Click the button below to login.</h2>
 	</div>
 		<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     		<script>
+    		/*
     		gapi.load('auth2', function(){
     			
     			alert("in gapi.load");
@@ -39,7 +34,6 @@
     				
     		      var options = new gapi.auth2.SigninOptionsBuilder(
     		    	        {'scope': 'email https://www.googleapis.com/auth/calendar'});
-
     		    	googleUser = auth2.currentUser.get();
     		    	googleUser.grant(options).then(
     		    	    function(success){
@@ -55,10 +49,8 @@
     			  if (authResult['code']) {
     				alert("authresult: " + authResult['code']);
 				console.log("authresult: " + authResult['code']);
-
     			    // Hide the sign-in button now that the user is authorized, for example:
     			    //$('#signinButton').attr('style', 'display: none');
-
     			    // Send the code to the server
     			    $.ajax({
     			      type: 'GET',
@@ -73,6 +65,9 @@
     			      success: function(result) {
     			        // Handle or verify the server response.
     			        alert("result" + result);
+    			        console.log("result: " + result);
+    			        alert("authresult: " + authResult['code']);
+    			        
     			      },
     			      processData: false,
     			      data: authResult['code']
@@ -85,12 +80,12 @@
     			  
     			  alert("finished sign in call back");
     			}
-    		  
+    		  */
 	      function onSignIn(googleUser) {
 	        // Useful data for your client-side scripts:
 	        	console.log("in onSignIn");
 	        alert("signed in");
-	        auth2.grantOfflineAccess().then(signInCallback);
+	        // auth2.grantOfflineAccess().then(signInCallback);
 			alert("granted access");
 	        var profile = googleUser.getBasicProfile();
 	        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
@@ -99,6 +94,7 @@
 	        console.log('Family Name: ' + profile.getFamilyName());
 	        console.log("Image URL: " + profile.getImageUrl());
 	        console.log("Email: " + profile.getEmail());
+	        alert(profile.getEmail());
 	
 	        // The ID token you need to pass to your backend:
 	        var id_token = googleUser.getAuthResponse().id_token;
@@ -122,7 +118,8 @@
 	        //var xhttp = new XMLHttpRequest();
 	        //xhttp.open("GET", "profile.jsp?id=" + id_token + "&name=" + profile.getName(), false);
 	        //xhttp.send();
-	        /*
+	        
+	        
 	        var form = document.getElementById("form");
 	        form.setAttribute("method", "POST");
 	        form.setAttribute("action", "profile.jsp");
@@ -138,12 +135,18 @@
             hidden.setAttribute("type", "hidden");
             hidden.setAttribute("name", "name");
             hidden.setAttribute("value", profile.getName());
-
             form.appendChild(hidden);
+            
+            var hide = document.createElement("input");
+            hide.setAttribute("type", "hidden");
+            hide.setAttribute("name", "email");
+            var id = (profile.getEmail()).split("@");
+            hide.setAttribute("value", id[0]);
+            form.appendChild(hide);
             
 	        
 	        // document.body.appendChild(form);
-	        form.submit();*/
+	        form.submit();
 	      };
 	      
 	    </script>

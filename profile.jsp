@@ -18,10 +18,22 @@
 	<%
 	ArrayList<String> meetingNames = new ArrayList<String>();
 	ArrayList<String> meetingTimes = new ArrayList<String>();
-	ArrayList<Integer> meetingIds = new ArrayList<Integer>();
+	ArrayList<String> meetingLocations = new ArrayList<String>();
+	
 
 	ArrayList<String> teamNames = new ArrayList<String>();
-	ArrayList<Integer> teamIds = new ArrayList<Integer>();
+	
+	HttpSession mySession = request.getSession();
+	String userName = request.getParameter("name");
+	String userID = request.getParameter("email");
+	if (userID != null)
+	{
+		mySession.setAttribute("userID", userID);
+	}
+	if (userName != null)
+	{
+		mySession.setAttribute("userName", userName);
+	}
 	
 	Connection conn = null;
 	Statement st = null;
@@ -29,9 +41,10 @@
 	ResultSet rs = null;
 	try {
 		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=qawsqaws&useSSL=false");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
 		st = conn.createStatement();
 		String id = (request.getParameter("user_id"));
+		System.out.println("called once");
 		// rs = st.executeQuery("SELECT * from Student where fname='" + name + "'");
 		
 		// check if user is in database
@@ -43,42 +56,55 @@
 		if (!rs.next())
 		{
 			ps = conn.prepareStatement("INSERT INTO USERS (userID, userName) VALUES (?, ?)");
-			ps.setString(1, request.getParameter("user_id"));
+			System.out.println("!!!!" + request.getParameter("email"));
+			ps.setString(1, request.getParameter("email"));
 			ps.setString(2, request.getParameter("name"));
 			ps.execute();
 		}
 		
 		// fill in arraylists with info about user's meetings
 		ps = conn.prepareStatement("SELECT * FROM meeting_users WHERE userID=?");
-		ps.setString(1, request.getParameter("user_id"));
+		ps.setString(1, userID);
 		rs = ps.executeQuery();
-		
+		int [] meetingIDs = new int[20];
+		int i=0;
 		while(rs.next())
 		{
-			String name = rs.getString("meetingName");
-			String time = rs.getString("meetingTime");
-			int meetId = rs.getInt("meetingId");
-			meetingNames.add(name);
-			meetingTimes.add(time);
-			meetingIds.add(meetId);
+			
+			int meetingID = rs.getInt("meetingId");
+			meetingIDs[i] = meetingID;
+			i++;
+		}
+		for (int j=0; j<i; j++)
+		{
+			ps = conn.prepareStatement("SELECT * FROM meeting WHERE meetingId=?");
+			ps.setInt(1, meetingIDs[j]);
+			rs = ps.executeQuery();
+			rs.next();
+			String meetingName = rs.getString("meetingName");
+			String meetingLocation = rs.getString("meetingLocation");
+			String meetingTime = rs.getString("meetingTime");
+			meetingNames.add(meetingName);
+			meetingLocations.add(meetingLocation);
+			meetingTimes.add(meetingTime);
 		}
 		
 		
 		// fill in arraylists with info about user teams
 		ps = conn.prepareStatement("SELECT * FROM TeamMembers WHERE userID=?");
-		ps.setString(1, id);
+		ps.setString(1, userID);
 		rs = ps.executeQuery();
 		
 		while(rs.next())
 		{
 			int teamId = rs.getInt("teamID");
-			System.out.println("Team id = " + teamId);
-			teamIds.add(teamId);
-			PreparedStatement psT = conn.prepareStatement("SELECCT * FROM Team WHERE teamID=?");
+			
+			
+			PreparedStatement psT = conn.prepareStatement("SELECT * FROM Team WHERE teamID=?");
 			psT.setInt(1, teamId);
 			ResultSet rsT = psT.executeQuery();
+			rsT.next();
 			String teamName = rsT.getString("teamName");
-			System.out.println("Team name = " + teamName);
 			teamNames.add(teamName);
 		}
 		
@@ -108,44 +134,62 @@
 	
 	
 	//TEST!!
-	meetingIds.add(1);
-	meetingIds.add(2);
-	meetingIds.add(3);
-	meetingNames.add("Meet1");
-	meetingNames.add("Meet2");
-	meetingNames.add("Meet3");
-	meetingTimes.add("Time1");
-	meetingTimes.add("Time2");
-	meetingTimes.add("Time3");
-	teamIds.add(1);
-	teamNames.add("Team1");
+	
 	
 	
 	%>
+	<script>
+	var socket;
+	function connectToServer() {
+		socket = new WebSocket("ws://localhost:8080/CSCI_201FinalProject/ws");
+		socket.onopen = function(event) {
+			
+			var message = '<%=userName%>';
+			sendMessage(message);
+			
+		}
+		socket.onmessage = function(event) {
+			document.getElementById("notification").innerHTML += '<div class="alert alert-warning alert-dismissible" role="alert">' +
+			  '<span type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></span>' +
+			  event.data + '</div>';
+		}
+		socket.onclose = function(event) {
+			
+		}
+	}
+	function sendMessage(message) {
+		socket.send(message);
+		return false;
+	}
+</script>
 </head>
 	<body>
 	
-		<h1><%= request.getParameter("name") %>'s Profile</h1>
-		<h3>Id: <%= request.getParameter("user_id") %></h3>
+		<h1><%= (String)mySession.getAttribute("userName") %>'s Profile</h1>
+		<h3>Id: <%= (String)mySession.getAttribute("userID") %></h3>
 		<div id="meeting_page_form">
 			<form name = "meeting_form" method="GET" action = "CreateMeeting.jsp">
 				<input type="submit" name="submit" value="Create a Meeting" />
+			</form>
+			<form name="teamCreate" method="GET" action="CreateATeam.jsp">
+				<input type="submit" name="submit" value="CreateTeam"/>
 			</form>
 		</div>
 		<div id = "meetings">
 			<h3>Meetings</h3>
 			<table>
-			<tr><td>Meeting ID</td>
-			<td>Meeting Name</td>
+			<tr><td>Meeting Name</td>
+			<td>Meeting Location</td>
 			<td>Meeting Time</td></tr>
 				<%
-					for (int i = 0; i < meetingIds.size(); i++)
+					for (int i = 0; i < meetingNames.size(); i++)
 					{
-						%><tr><td><%= meetingIds.get(i) %></td>
+						%><tr>
 						<td><form name="meeting_form" method="GET" action = "Meeting.jsp">
 							<input type="submit" name="meetingName" value=<%= meetingNames.get(i) %> />
 						</form></td>
-						<td><%= meetingTimes.get(i) %></td>
+						<td><%=meetingLocations.get(i)%></td>
+						<td><%=meetingTimes.get(i)%></td>
 						
 						
 						</tr><%
@@ -161,9 +205,9 @@
 			<tr><td>Team ID</td>
 			<td>Team Name</td></tr>
 				<%
-					for (int i = 0; i < teamIds.size(); i++)
+					for (int i = 0; i < teamNames.size(); i++)
 					{
-						%><tr><td><%= teamIds.get(i) %></td>
+						%><tr>
 						<td><form name="meeting_form" method="GET" action = "TeamPage.jsp">
 							<input type="submit" name="teamName" value=<%= teamNames.get(i) %> />
 						</form></td></tr><%

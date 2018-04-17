@@ -54,7 +54,8 @@ button:focus {
 </style>
 <%
     		HttpSession mySession = request.getSession();
-    		String currentUser = (String)mySession.getAttribute("currentUser");
+    		String currentUser = (String)mySession.getAttribute("userID");
+    		String currentUserName = (String)mySession.getAttribute("userName");
     		System.out.println("CURRENT USER + " + currentUser);
     		String tN = (String)request.getParameter("teamName");
     		mySession.setAttribute("teamName", tN);
@@ -73,10 +74,11 @@ button:focus {
 				// anything done after this line will be using this driver
 				conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
 				st = conn.createStatement();
-
+				System.out.println("working");
 				rs = st.executeQuery("SELECT t.teamID FROM Team t WHERE teamName='" + tN +"';");
-
+	
 				rs.next();
+				System.out.println("still working");
 				int teamID = rs.getInt("teamID");
 				rs = st.executeQuery("SELECT u.userID FROM TeamMembers u WHERE teamID='" + teamID + "';");	
 				
@@ -87,18 +89,19 @@ button:focus {
 					
 					userIDs.add(userID);
 					
-				} 
+				}  /*
 				for (int i=0; i<userIDs.size(); i++)
 				{
+					System.out.println("USER ID " + userIDs.get(i));
 					rs = st.executeQuery("SELECT u.userName FROM users u WHERE userID='" + userIDs.get(i) + "';");
 					rs.next();
 					String name = rs.getString("userName");
 					userNames.add(name);
-				}
+				} 
 				String test = "SELECT m.meetingName m.meetingLocation m.meetingTime FROM meeting m WHERE teamID='" + teamID + "';";
-				
+				*/
 				rs = st.executeQuery("SELECT m.meetingName, m.meetingLocation, m.meetingTime FROM meeting m WHERE teamID='" + teamID + "';");
-				
+				System.out.println("STILL WORKING");
 				while (rs.next())
 				{
 					String meetingName = rs.getString("meetingName");
@@ -143,7 +146,7 @@ button:focus {
 		socket = new WebSocket("ws://localhost:8080/CSCI_201FinalProject/ws");
 		socket.onopen = function(event) {
 			
-			var message = '<%=currentUser%>';
+			var message = '<%=currentUserName%>';
 			sendMessage(message);
 			
 		}
@@ -173,7 +176,7 @@ button:focus {
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav ml-auto">
                 <li class="navbar-item">
-                    <a href="#" class="nav-link">Profile</a>
+                    <a href="profile.jsp" class="nav-link">Profile</a>
                 </li>
                 <li class="navbar-item">
                     <a href="#" class="nav-link">Settings</a>
@@ -199,11 +202,11 @@ button:focus {
 			<table>
 			<% String numMembers = request.getParameter("memberCount");
 			
-			for (int i=0; i<userNames.size(); i++)
+			for (int i=0; i<userIDs.size(); i++)
 			{
 				int j = i+1;
 				String tM = "teamMember" + j;
-				%> <tr><h4><%=userNames.get(i)%></h4></tr> <% 
+				%> <tr><h4><%=userIDs.get(i)%></h4></tr> <% 
 			}
 			
 			%>
