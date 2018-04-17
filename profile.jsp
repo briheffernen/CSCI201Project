@@ -66,17 +66,19 @@
 		
 		// fill in arraylists with info about user teams
 		ps = conn.prepareStatement("SELECT * FROM TeamMembers WHERE userID=?");
-		ps.setString(1, "1");
+		ps.setString(1, id);
 		rs = ps.executeQuery();
 		
 		while(rs.next())
 		{
 			int teamId = rs.getInt("teamID");
+			System.out.println("Team id = " + teamId);
 			teamIds.add(teamId);
 			PreparedStatement psT = conn.prepareStatement("SELECCT * FROM Team WHERE teamID=?");
 			psT.setInt(1, teamId);
 			ResultSet rsT = psT.executeQuery();
 			String teamName = rsT.getString("teamName");
+			System.out.println("Team name = " + teamName);
 			teamNames.add(teamName);
 		}
 		
@@ -125,6 +127,11 @@
 	
 		<h1><%= request.getParameter("name") %>'s Profile</h1>
 		<h3>Id: <%= request.getParameter("user_id") %></h3>
+		<div id="meeting_page_form">
+			<form name = "meeting_form" method="GET" action = "CreateMeeting.jsp">
+				<input type="submit" name="submit" value="Create a Meeting" />
+			</form>
+		</div>
 		<div id = "meetings">
 			<h3>Meetings</h3>
 			<table>
@@ -135,8 +142,13 @@
 					for (int i = 0; i < meetingIds.size(); i++)
 					{
 						%><tr><td><%= meetingIds.get(i) %></td>
-						<td><%= meetingNames.get(i) %></td>
-						<td><%= meetingTimes.get(i) %></td></tr><%
+						<td><form name="meeting_form" method="GET" action = "Meeting.jsp">
+							<input type="submit" name="meetingName" value=<%= meetingNames.get(i) %> />
+						</form></td>
+						<td><%= meetingTimes.get(i) %></td>
+						
+						
+						</tr><%
 						
 					}
 				%>
@@ -152,7 +164,9 @@
 					for (int i = 0; i < teamIds.size(); i++)
 					{
 						%><tr><td><%= teamIds.get(i) %></td>
-						<td><%= teamNames.get(i) %></td></tr><%
+						<td><form name="meeting_form" method="GET" action = "TeamPage.jsp">
+							<input type="submit" name="teamName" value=<%= teamNames.get(i) %> />
+						</form></td></tr><%
 						
 					}
 				%>
