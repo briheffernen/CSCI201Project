@@ -76,6 +76,7 @@ button:focus {
 				st = conn.createStatement();
 				System.out.println("working");
 				rs = st.executeQuery("SELECT t.teamID FROM Team t WHERE teamName='" + tN +"';");
+				System.out.println(tN);
 	
 				rs.next();
 				System.out.println("still working");

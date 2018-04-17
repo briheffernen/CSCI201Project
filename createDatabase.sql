@@ -10,7 +10,8 @@ CREATE TABLE meeting (
 meetingID int(11) primary key not null auto_increment,
 meetingTime DATETIME not null,
 meetingLocation varchar(50) not null,
-meetingName varchar(50) not null
+meetingName varchar(50) not null,
+teamID int(11) not null
 );
 
 CREATE TABLE meeting_users(
@@ -32,17 +33,15 @@ CREATE TABLE LocationReviews (
 	FOREIGN KEY fk2(userID) REFERENCES users(userID)
 );
 CREATE TABLE Team (
-	teamID INT(11) PRIMARY KEY NOT NULL,
+	teamID INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
 	teamName VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE TeamMembers(
 	userID VARCHAR(50) NOT NULL,
-	teamID INT(11) NOT NULL,
-	FOREIGN KEY fk1(userID) REFERENCES users(userID),
-	FOREIGN KEY fk2(teamID) REFERENCES Team(teamID)
+	teamID INT(11) NOT NULL
 );
 
-INSERT INTO users (userID, userName) VALUES ('chochola', 'Caroline Chocholak');
+
 INSERT INTO users (userID, userName) VALUES ('nicolebe', 'Nicole Bergman');
 

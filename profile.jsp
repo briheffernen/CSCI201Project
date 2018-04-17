@@ -30,9 +30,16 @@
 	{
 		mySession.setAttribute("userID", userID);
 	}
+	else
+	{
+		userID = (String)mySession.getAttribute("userID");
+	}
 	if (userName != null)
 	{
 		mySession.setAttribute("userName", userName);
+	}
+	else {
+		userName = (String)mySession.getAttribute("userName");
 	}
 	
 	Connection conn = null;
@@ -43,13 +50,13 @@
 		Class.forName("com.mysql.jdbc.Driver");
 		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
 		st = conn.createStatement();
-		String id = (request.getParameter("user_id"));
+		
 		System.out.println("called once");
 		// rs = st.executeQuery("SELECT * from Student where fname='" + name + "'");
 		
 		// check if user is in database
 		ps = conn.prepareStatement("SELECT * FROM users WHERE userID=?");
-		ps.setString(1, id); // set first variable in prepared statement
+		ps.setString(1, userID); // set first variable in prepared statement
 		rs = ps.executeQuery();
 		
 		// add user to database if they are not already there
@@ -70,10 +77,11 @@
 		int i=0;
 		while(rs.next())
 		{
-			
+			System.out.println("found meeting");
 			int meetingID = rs.getInt("meetingId");
 			meetingIDs[i] = meetingID;
 			i++;
+			System.out.println(i);
 		}
 		for (int j=0; j<i; j++)
 		{
@@ -92,19 +100,20 @@
 		
 		// fill in arraylists with info about user teams
 		ps = conn.prepareStatement("SELECT * FROM TeamMembers WHERE userID=?");
-		ps.setString(1, userID);
+		ps.setString(1, userName);
 		rs = ps.executeQuery();
-		
+		System.out.println("we are finding teams");
 		while(rs.next())
 		{
 			int teamId = rs.getInt("teamID");
-			
+			System.out.println("TEAM ID " + teamId);
 			
 			PreparedStatement psT = conn.prepareStatement("SELECT * FROM Team WHERE teamID=?");
 			psT.setInt(1, teamId);
 			ResultSet rsT = psT.executeQuery();
 			rsT.next();
 			String teamName = rsT.getString("teamName");
+			System.out.println("GETTING TEAM NAME " + teamName);
 			teamNames.add(teamName);
 		}
 		
@@ -175,11 +184,6 @@
 				<input type="submit" name="submit" value="CreateTeam"/>
 			</form>
 		</div>
-		
-		<form name="add_calendar" method="GET" action = "SubmitCalendar.jsp">
-			<input type="submit" name="submit" value = "Add Calendar" />
-		</form>
-		
 		<div id = "meetings">
 			<h3>Meetings</h3>
 			<table>
@@ -214,7 +218,7 @@
 					{
 						%><tr>
 						<td><form name="meeting_form" method="GET" action = "TeamPage.jsp">
-							<input type="submit" name="teamName" value=<%= teamNames.get(i) %> />
+							<input type="submit" name="teamName" value="<%=teamNames.get(i)%>"/>
 						</form></td></tr><%
 						
 					}
