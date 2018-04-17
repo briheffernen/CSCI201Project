@@ -25,12 +25,15 @@
 				document.getElementById("reviews").innerHTML = xhttp.responseText; 
 			}
 			return true; 
-		}
-		
-		
+		}	
 	</script>
 </head>
 <style>
+
+#container {
+	position: relative; 
+}
+
 #searchoptions {
     margin-top: 60px;
     text-align: center;
@@ -39,8 +42,13 @@
 
 #map {
     height: 400px;
-    width: 90%;
+    width: 50%;
     margin: auto auto;
+    float: left; 
+}
+
+#title {
+	font-style: bold; 
 }
 
 .centerme {
@@ -51,43 +59,54 @@
 </style> 
 
 <body onLoad = "return loadReviews();">
-    <nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
-        <a href="/Final_Project/Test.jsp" class="navbar-brand">When and Where</a>
-        <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="navbar-item">
-                    <a href="#" class="nav-link">Profile</a>
-                </li>
-                <li class="navbar-item">
-                    <a href="#" class="nav-link">Settings</a>
-                </li>
-                <li class="navbar-item">
-                    <a href="#" class="nav-link">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+	<nav class="navbar navbar-light bg-light navbar-expand-sm">
+		<a href="/Final_Project/Test.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
+	    	<button class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+	    		<span class="navbar-toggler-icon"></span>
+	    </button>
+	    <div class="collapse navbar-collapse" id="navbarCollapse">
+	    		<ul class="navbar-nav ml-auto">
+	        	<li class="navbar-item">
+	        		<a href="#" class="nav-link">Profile</a>
+	        	</li>
+	        <li class="navbar-item">
+	        		<a href="#" class="nav-link">Settings</a>
+	       	</li>
+	        <li class="navbar-item">
+	        		<a href="#" class="nav-link">Logout</a>
+	        </li>
+	        </ul>
+		</div>
+	</nav>
     <!-- .container-fluid -->
-    <div id = "title"></div>
-    <div id = "map"></div>
-    <div id = "details"></div>
-    <div id = "reviews">${reviews}</div>
-    <script>console.log("reviews:\n" + document.getElementById("reviews").innerHTML)</script>
-    <form id = "review" method = "GET" action = "addReview">
-    		<input id = "leaveReview" name = "leaveReview" type = "text" placeholder = "Leave Review"/>
-    		<input id = "user" name = "user" type = "text">    		
-    		<input id = "loc" name = "loc" type = "hidden">
-    	
-    		<input id = "submit" type = "submit">
-    </form>
+    <div class = "container-fluid" id = "container">
+	    
+	    <div class = "container" id = "container">
+	    
+	    		<div class = "col-sm" id = "map"></div>
+	    		<div class = "col-sm" id = "locInfo">
+		    		<div id = "title"></div>
+		    		<div class = "col-sm" id = "details"></div> 
+	    		</div>
+	    </div>
+	    
+	    <div id = "reviews">${reviews}</div>
+	    
+	    <script>console.log("reviews:\n" + document.getElementById("reviews").innerHTML)</script>
+	    
+	    <form id = "review" method = "GET" action = "addReview">
+	    		<input id = "leaveReview" name = "leaveReview" type = "text" placeholder = "Leave Review"/>
+	    		<input id = "user" name = "user" type = "text">    		
+	    		<input id = "loc" name = "loc" type = "hidden">
+	    	
+	    		<input id = "submit" type = "submit">
+	    </form>
+    </div>
     
     <script type="text/javascript">
 
     //====================================== Creating a Map ===================================================
-
+	
     var map;
 	var tempAddy = location.search.split('VAR=')[1] 
 	var addy;
@@ -154,7 +173,7 @@
     			
     	  		document.getElementById('loc').value = place.name; 
 
-    	    		document.getElementById('details').innerHTML += "Name: " + place.name + "</br>";
+    	    		document.getElementById('title').innerHTML += "Name: " + place.name + "</br>";
     	    		document.getElementById('details').innerHTML += "ID: " + place.place_id + "</br>";
     	    		document.getElementById('details').innerHTML += "Address: " + place.vicinity + "</br>";
     	    		
