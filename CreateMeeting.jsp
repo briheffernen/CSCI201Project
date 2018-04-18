@@ -61,16 +61,8 @@
 	<input name="name"><br>
 	Choose Meeting Deadline:<br>
 	<input name="date" type="date"><input name = "time" type="time"><br>
-	Choose Meeting Duration<br>
-	<input name = "duration" type="time"><br>
-	Choose Location:<br>
-	<input name="locs" list="locations"> 
-	  <datalist id="locations">
-	  	<% for(int i = 0; i < locations.size(); i++){ %>
-	  		<option value="<%= locations.get(i) %>">
-	  	<%} %>
-	  </datalist> 
-	
+	Choose Meeting Duration in minutes<br>
+	<input name = "duration" ><br>
 	<br>Add Members: <br>
 		<div id="members">
 			  <input name="membername" id="friends" list="names">	 
