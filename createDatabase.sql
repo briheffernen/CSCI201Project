@@ -6,12 +6,20 @@ CREATE TABLE users (
 userID varchar(50) primary key not null,
 userName varchar(50) not null
 );
+
+CREATE TABLE Location (
+  locationID int(11) primary key not null auto_increment,
+  locName varchar(255) not null
+);
+
 CREATE TABLE meeting (
 meetingID int(11) primary key not null auto_increment,
 meetingTime DATETIME not null,
 meetingLocation varchar(50) not null,
+locationID int(11) not null,
 meetingName varchar(50) not null,
-teamID int(11) not null
+teamID int(11) not null,
+FOREIGN KEY fk1(locationID) REFERENCES Location(locationID)
 );
 
 CREATE TABLE meeting_users(
@@ -19,10 +27,6 @@ meetingId int(11) not null,
 userID varchar(50) not null,
 FOREIGN KEY fk1(meetingID) REFERENCES meeting(meetingID),
 FOREIGN KEY fk2(userID) REFERENCES users(userID)
-);
-CREATE TABLE Location (
-  locationID int(11) primary key not null auto_increment,
-  locName varchar(255) not null
 );
 CREATE TABLE LocationReviews (
 	LocationReviewsId int(11) primary key not null auto_increment, 
@@ -43,5 +47,4 @@ CREATE TABLE TeamMembers(
 );
 
 
-INSERT INTO users (userID, userName) VALUES ('nicolebe', 'Nicole Bergman');
 
