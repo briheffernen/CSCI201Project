@@ -254,7 +254,7 @@ button:focus {
 			<form name="teamCreate" method="GET" action="CreateATeam.jsp">
 				<input type="submit" name="submit" class="btn btn-primary fader" value="Create a Team"/>
 			</form>
-			<h4>  </h4>
+			<div><h4> </h4> </div> <h4>  </h4>
 		</div>
 		<div id = "meetings">
 			<h3>Meetings</h3>
@@ -286,6 +286,10 @@ button:focus {
 			<tr>
 				
 				<%
+					if(teamNames.size() == 0)
+					{
+						%><td>No Teams to display</td><%
+					}
 					for (int i = 0; i < teamNames.size(); i++)
 					{
 						%><tr>
