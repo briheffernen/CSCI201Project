@@ -225,7 +225,7 @@ button:focus {
 </style>
 	<body>
 	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
-	<a href="#" class="navbar-brand">When and Where</a>
+	<a href="http://localhost:8080/FinalProjTeam/homepage.jsp" class="navbar-brand">When and Where</a>
 	<button class="navbar-toggler" data-toggle="collapse"
 		data-target="#navbarCollapse">
 		<span class="navbar-toggler-icon"></span>
