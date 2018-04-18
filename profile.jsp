@@ -20,7 +20,6 @@
 	ArrayList<String> meetingTimes = new ArrayList<String>();
 	ArrayList<String> meetingLocations = new ArrayList<String>();
 	
-
 	ArrayList<String> teamNames = new ArrayList<String>();
 	
 	HttpSession mySession = request.getSession();
@@ -48,7 +47,7 @@
 	ResultSet rs = null;
 	try {
 		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=qawsqaws&useSSL=false");
 		st = conn.createStatement();
 		
 		System.out.println("called once");
@@ -172,21 +171,94 @@
 	}
 </script>
 </head>
+
+<style>
+#searchoptions {
+	margin-top: 60px;
+	font-size: 50px;
+}
+#map {
+	height: 400px;
+	width: 90%;
+	margin: auto auto;
+}
+.centerme {
+	margin: auto auto;
+	width: 80%;
+}
+#mapsection {
+	padding-top: 40px;
+	padding-bottom: 30px;
+}
+#usersection {
+	padding-top: 40px;
+	display: none;
+}
+#createmeeting_button {
+	margin: 20px auto;
+	width: 200px;
+}
+button:focus {
+	outline: none !important;
+}
+.btn-disabled {
+	opacity: 0.5;
+}
+.fader {
+	-webkit-transition: .6s;
+	transition: .6s;
+}
+.btn:hover {
+	cursor: pointer;
+}
+.btn-lg:hover {
+	cursor: pointer;
+}
+.row {
+	text-align: center;
+}
+#userResults {
+	margin: auto auto;
+	width: 70%;
+}
+
+</style>
 	<body>
+	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
+	<a href="#" class="navbar-brand">When and Where</a>
+	<button class="navbar-toggler" data-toggle="collapse"
+		data-target="#navbarCollapse">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarCollapse">
+		<ul class="navbar-nav ml-auto">
+			<li class="navbar-item"><a href="#" class="nav-link">Profile</a>
+			</li>
+			<li class="navbar-item"><a href="#" class="nav-link">Settings</a>
+			</li>
+			<li class="navbar-item"><a href="#" class="nav-link">Logout</a>
+			</li>
+		</ul>
+	</div>
+	</nav>
+	<div class="container-fluid">
+	<div>i</div><div>i</div><div>  </div>
 	
 		<h1><%= (String)mySession.getAttribute("userName") %>'s Profile</h1>
 		<h3>Id: <%= (String)mySession.getAttribute("userID") %></h3>
-		<div id="meeting_page_form">
+		<div id="searchoptions">
 			<form name = "meeting_form" method="GET" action = "CreateMeeting.jsp">
-				<input type="submit" name="submit" value="Create a Meeting" />
+				<input type="submit" name="submit" class="btn btn-primary fader" value="Create a Meeting" />
 			</form>
+			<h4>  </h4>
 			<form name="teamCreate" method="GET" action="CreateATeam.jsp">
-				<input type="submit" name="submit" value="CreateTeam"/>
+				<input type="submit" name="submit" class="btn btn-primary fader" value="Create a Team"/>
 			</form>
+			<h4>  </h4>
 		</div>
 		<div id = "meetings">
 			<h3>Meetings</h3>
-			<table>
+			<table class="table">
 			<tr><td>Meeting Name</td>
 			<td>Meeting Location</td>
 			<td>Meeting Time</td></tr>
@@ -195,10 +267,10 @@
 					{
 						%><tr>
 						<td><form name="meeting_form" method="GET" action = "Meeting.jsp">
-							<input type="submit" name="meetingName" value=<%= meetingNames.get(i) %> />
+							<input type="submit" class="btn btn-outline-primary" name="meetingName" value=<%= meetingNames.get(i) %> />
 						</form></td>
-						<td><%=meetingLocations.get(i)%></td>
-						<td><%=meetingTimes.get(i)%></td>
+						<td><h4><%=meetingLocations.get(i)%></h4></td>
+						<td><h4><%=meetingTimes.get(i)%></h4></td>
 						
 						
 						</tr><%
@@ -210,7 +282,7 @@
 		</div>
 		<div id="teams">
 			<h3>Teams</h3>
-			<table>
+			<table class="table">
 			<tr><td>Team ID</td>
 			<td>Team Name</td></tr>
 				<%
@@ -218,13 +290,14 @@
 					{
 						%><tr>
 						<td><form name="meeting_form" method="GET" action = "TeamPage.jsp">
-							<input type="submit" name="teamName" value="<%=teamNames.get(i)%>"/>
+							<input type="submit" class="btn btn-outline-primary" name="teamName" value="<%=teamNames.get(i)%>"/>
 						</form></td></tr><%
 						
 					}
 				%>
 			
 			</table>
+		</div>
 		</div>
 	</body>
 </html>
