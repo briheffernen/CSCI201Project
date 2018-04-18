@@ -23,23 +23,17 @@
 	ArrayList<String> teamNames = new ArrayList<String>();
 	
 	HttpSession mySession = request.getSession();
-	String userName = request.getParameter("name");
-	String userID = request.getParameter("email");
-	if (userID != null)
+	String userName = request.getParameter("userName");
+	String userID = "";
+	System.out.println(userName);
+	boolean currentUser = false;
+	if (userName == null)
 	{
-		mySession.setAttribute("userID", userID);
-	}
-	else
-	{
-		userID = (String)mySession.getAttribute("userID");
-	}
-	if (userName != null)
-	{
-		mySession.setAttribute("userName", userName);
-	}
-	else {
 		userName = (String)mySession.getAttribute("userName");
+		userID = (String)mySession.getAttribute("userID");
+		currentUser = true;
 	}
+	
 	
 	Connection conn = null;
 	Statement st = null;
@@ -47,10 +41,16 @@
 	ResultSet rs = null;
 	try {
 		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=qawsqaws&useSSL=false");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
 		st = conn.createStatement();
-		
-		System.out.println("called once");
+		if (!currentUser) {
+			ps = conn.prepareStatement("SELECT * FROM users WHERE userName=?");
+			ps.setString(1, userName);
+			rs = ps.executeQuery();
+			rs.next();
+			userID = rs.getString("userID");
+		}
+		System.out.println(userID);
 		// rs = st.executeQuery("SELECT * from Student where fname='" + name + "'");
 		
 		// check if user is in database
@@ -174,7 +174,7 @@
 
 <style>
 #searchoptions {
-	margin-top: 60px;
+	
 	font-size: 50px;
 }
 #map {
@@ -221,7 +221,28 @@ button:focus {
 	margin: auto auto;
 	width: 70%;
 }
+.title {
+	margin: auto auto;
+	padding: 10px;
+	width: 35%;
+	background-color: CornflowerBlue;
+	text-align: center;
+	border-radius: 10px;
+	color: white;
+}
+.titleBelow {
+	padding: 10px;
+	text-align: center;
+	
+}
+.centerme1 {
+	margin: auto auto;
+    width: 40%;
+    text-align: center;
+    
+    
 
+}
 </style>
 	<body>
 	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
@@ -244,9 +265,9 @@ button:focus {
 	<div class="container-fluid">
 	<div>i</div><div>i</div><div>  </div>
 	
-		<h1><%= (String)mySession.getAttribute("userName") %>'s Profile</h1>
-		<h3>Id: <%= (String)mySession.getAttribute("userID") %></h3>
-		<div id="searchoptions">
+		<br><h2 class="title"><%=userName%>'s Profile</h2>
+		<h3 class="titleBelow">ID: <%=userID%></h3>
+		<div id="searchoptions" class="centerme1">
 			<form name = "meeting_form" method="GET" action = "CreateMeeting.jsp">
 				<input type="submit" name="submit" class="btn btn-primary fader" value="Create a Meeting" />
 			</form>
