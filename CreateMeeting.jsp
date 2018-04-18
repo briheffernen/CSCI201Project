@@ -129,7 +129,7 @@
 				function moreMembers() {
 					var num = countBox + 1;
 					document.getElementById('response').innerHTML += '<div class="input-group">'
-							+ '<input id="memberName' + countBox +'" class="form-control" name="memberName' + countBox+'" list="names" placeholder="Member ' + num + '"> </div>';
+							+ '<input id="memberName' + countBox +'" class="form-control" name="memberName" list="names" placeholder="Member ' + num + '"> </div>';
 
 					countBox += 1;
 					
