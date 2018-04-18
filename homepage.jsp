@@ -126,7 +126,7 @@ button:focus {
 					<!-- .form-group -->
 				</div>
 			</form>
-			<form action="" method="GET" id="createMeeting">
+			<form action="CreateMeeting.jsp" method="GET" id="createMeeting">
 				<div class="centerme">
 					<input type="hidden" name="meetingAddress" id="meetingAddress"
 						value="">
@@ -166,11 +166,11 @@ button:focus {
 						<!-- Where the results go -->
 						<tr>
 							<td>1</td>
-							<td><a href="userprofile.jsp?userID=4">Tommy Trojan</a></td>
+							<td><a href="profile.jsp?userID=4">Tommy Trojan</a></td>
 						</tr>
 						<tr>
 							<td>2</td>
-								<td><a href="userprofile.jsp?userID=5">Jessie Locke</a></td>
+								<td><a href="profile.jsp?userID=5">Jessie Locke</a></td>
 						</tr>
 					</tbody>
 				</table>
@@ -386,6 +386,8 @@ button:focus {
 					mapOptions);
 			geocoder = new google.maps.Geocoder;
 			infoWindow = new google.maps.InfoWindow;
+			
+			
 
 			// Try HTML5 geolocation.
 			if (navigator.geolocation) {
@@ -429,15 +431,91 @@ button:focus {
 				infoWindow.open(map);
 			}
 
-			google.maps.event.addListener(map, 'click',
-					function(event) {
-						placeMarker(event.latLng);
-						geocodeLatLng(geocoder, map, infoWindow, event.latLng,
-								"click");
-					});
+			google.maps.event.addListener(map,'click',function(event) {
+				placeMarker(event.latLng);
+ 				
+		        if (event.placeId) {
+		          getname(event.placeId)
+		        } else {
+		          geocoder.geocode({
+		                'latLng': event.latLng
+		              },
+		              function(results, status) {
+		                if (status == google.maps.GeocoderStatus.OK) {
+		                	
+		                  if (results[0]) {
+		      				infoWindow.setContent(results[0].formatted_address);
+		      				infoWindow.open(map, marker); 
+
+		    					map.setCenter(results[0].geometry.location);
+		    					marker.setPosition(results[0].geometry.location);
+		                    	getname(results[0].place_id);
+		                    
+		                  }
+
+		                }
+		              });
+		        }
+		      });
+
+		  function getname(place_id) {
+		    var placesService = new google.maps.places.PlacesService(map);
+		    placesService.getDetails({
+		      placeId: place_id
+		    }, function(results, status) {
+				//infoWindow.setContent(results.formatted_address);
+				//infoWindow.open(map, marker); 
+				
+				document.getElementById("address").value = results.name;
+
+				validQuery = results.name;
+				document.getElementById('meetingAddress').value = validQuery;
+				console.log(document.getElementById('meetingAddress').value);
+				enableCreateMeetingButton();
+
+		    });
+		  }
+		
+
+			//This function generates 
+			document.querySelector("#google-form").onsubmit = function() {
+
+				var addressInput = document.querySelector("#address").value
+						.trim();
+
+				var geotest = new google.maps.Geocoder();
+
+				geotest.geocode({
+					address : addressInput
+				}, function(results) { // This anonymous function runs when geocode() is done 
+					//(aka it is done converting the address into a latlng obj)
+					// console.log("LatLng: ");
+					// console.log(results[0].geometry.location.lat());
+					// console.log(results[0].geometry.location.lng());
+
+					map.setCenter(results[0].geometry.location);
+					marker.setPosition(results[0].geometry.location);
+					geocodeLatLng(geotest, map, infoWindow,
+							results[0].geometry.location, "search");
+					//don't update the address bar in this case
+					console.log("The address is: "
+							+ results[0].geometry.location);
+				});
+				//If a valid address has been found, activate the create meeting button
+				if (!document.querySelector("#address").value.trim() == "") {
+
+					document.getElementById("createmeeting_button").disabled = false;
+				}
+				return false;
+			}
+
+		  
+		}
+		
+		
 
 			// this function places the marker and populates the search input 
-			function placeMarker(location) {
+ 			function placeMarker(location) {
 				if (typeof marker !== 'undefined') {
 					marker.setMap(null);
 				}
@@ -451,9 +529,9 @@ button:focus {
 				});
 
 			}
-
+ 
 			// this function converts geocode (latitude and longitude) to a recognizable address
-			function geocodeLatLng(geocoder, map, infoWindow, latlng,
+/* 			function geocodeLatLng(geocoder, map, infoWindow, latlng,
 					requestType) {
 				geocoder
 						.geocode(
@@ -463,20 +541,38 @@ button:focus {
 								function(results, status) {
 									if (status === 'OK') {
 										if (results[0]) {
+											
 											infoWindow
 													.setContent(results[0].formatted_address);
 											infoWindow.open(map, marker);
 											if (requestType == "click") {
-												document
-														.getElementById("address").value = results[0].formatted_address;
+												document.getElementById("address").value = results[0].formatted_address;
 											}
 											validQuery = results[0].formatted_address;
-											document
-													.getElementById('meetingAddress').value = validQuery;
-											console
-													.log(document
-															.getElementById('meetingAddress').value);
+											
+											var id = results[0].place_id; 
+										    var request = {
+										    		  placeId: id 
+										    	};
+										    
+										    var name = getname(results[0]); 
+										    console.log("NAME BE: " + name);
+										    
+										    var service = new google.maps.places.PlacesService(map);
+										    service.getDetails(request, detailsCallback);
+										    
+										    function detailsCallback(place, status) {
+										    	  	console.log("Entered callback for details"); 
+										    	  	if (status == google.maps.places.PlacesServiceStatus.OK) {
+										    	  		validQuery = place.name; 
+										    	  		console.log("name: " + validQuery)
+										    	  	}
+										      }		
+	
+											document.getElementById('meetingAddress').value = validQuery;
+											console.log(document.getElementById('meetingAddress').value);
 											enableCreateMeetingButton();
+											
 										} else {
 											window.alert('No results found');
 										}
@@ -485,7 +581,7 @@ button:focus {
 												+ status);
 									}
 								});
-			}
+			} */
 			/*
 			// Add a marker
 			var marker = new google.maps.Marker({
@@ -535,42 +631,7 @@ button:focus {
 			//         // }
 			//     }
 
-			var marker = new google.maps.Marker({
-				map : map
-			});
-
-			//This function generates 
-			document.querySelector("#google-form").onsubmit = function() {
-
-				var addressInput = document.querySelector("#address").value
-						.trim();
-
-				var geotest = new google.maps.Geocoder();
-
-				geotest.geocode({
-					address : addressInput
-				}, function(results) { // This anonymous function runs when geocode() is done 
-					//(aka it is done converting the address into a latlng obj)
-					// console.log("LatLng: ");
-					// console.log(results[0].geometry.location.lat());
-					// console.log(results[0].geometry.location.lng());
-
-					map.setCenter(results[0].geometry.location);
-					marker.setPosition(results[0].geometry.location);
-					geocodeLatLng(geotest, map, infoWindow,
-							results[0].geometry.location, "search");
-					//don't update the address bar in this case
-					console.log("The address is: "
-							+ results[0].geometry.location);
-				});
-				//If a valid address has been found, activate the create meeting button
-				if (!document.querySelector("#address").value.trim() == "") {
-
-					document.getElementById("createmeeting_button").disabled = false;
-				}
-				return false;
-			}
-		}
+		//}
 
 		//====================================== Creating a Meeting ===================================================
 
@@ -610,7 +671,7 @@ button:focus {
 		// });
 	</script>
 	<script
-		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=initMap"></script>
+		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCDV9Wi54vI3fIhOxEBHJDokoiEMAiLGu8&libraries=places&callback=initMap"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
 		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 		crossorigin="anonymous"></script>
