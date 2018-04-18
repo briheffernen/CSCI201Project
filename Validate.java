@@ -2,7 +2,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
@@ -15,10 +16,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import jsons.Event;
 
 /**
  * Servlet implementation class Validation
@@ -64,6 +67,8 @@ public class Validate extends HttpServlet {
             {
                 buffer.append(line);
             }
+			con.disconnect();
+
             String json = buffer.toString();	
     	    JsonParser parser = new JsonParser();
     		JsonElement jsonTree = parser.parse(json);
@@ -73,6 +78,32 @@ public class Validate extends HttpServlet {
     		String refresh_token;
     		if(jsonObject.get("refresh_token") != null)
     			refresh_token = jsonObject.get("refresh_token").getAsString();
+				url = new URL("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token="+access_token);
+				HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+				connect.setRequestMethod("GET");
+				int status = connect.getResponseCode();
+				System.out.println(status);
+
+				BufferedReader in = new BufferedReader(
+						  new InputStreamReader(connect.getInputStream()));
+						String inputLine;
+						StringBuffer content = new StringBuffer();
+						while ((inputLine = in.readLine()) != null) {
+						    content.append(inputLine);
+						}
+						in.close();
+				connect.disconnect();
+				 json = content.toString();	
+	    	    //System.out.println(json);
+	    	     parser = new JsonParser();
+	    		 jsonTree = parser.parse(json);
+	    		 jsonObject = jsonTree.getAsJsonObject();	
+	    	String name = jsonObject.get("name").getAsString();
+	    	String email = jsonObject.get("email").getAsString();
+	    	System.out.println(name);
+	    	System.out.println(email);
+	    	request.getSession().setAttribute("userName", name);
+	    	request.getSession().setAttribute("userID", email);
     		String next = "/profile.jsp";
     	
 	RequestDispatcher dispatch = getServletContext().getRequestDispatcher(next);

@@ -9,13 +9,12 @@
 <body>
 <%
 String url = "https://accounts.google.com/o/oauth2/v2/auth?";
-String scope = "scope=https://www.googleapis.com/auth/calendar&"; //https://www.googleapis.com/auth/userinfo.profile&";
+String scope = "scope=https://www.googleapis.com/auth/calendar+https://www.googleapis.com/auth/userinfo.profile+https://www.googleapis.com/auth/userinfo.email&";
 String access = "access_type=offline&";
 String redirect = "redirect_uri=http://localhost:8080/Final/Validate&";
 String re ="response_type=code&";
 String client = "client_id=130203725109-1aapvdgu050h3glci9cu7go2qtji7rbu.apps.googleusercontent.com";
 String fin = url+scope+access+redirect+re+client;
-System.out.println(fin);
 %>
 
 </script>
