@@ -49,7 +49,12 @@ button:focus {
 }
 .teamName {
 	margin: auto auto;
-	width: 20%;
+	padding: 10px;
+	width: 35%;
+	background-color: CornflowerBlue;
+	text-align: center;
+	border-radius: 10px;
+	color: white;
 }
 </style>
 <%
@@ -194,38 +199,50 @@ button:focus {
     <br>
     
     <div class="container-fluid">
-			<h4 class="teamName"><%=request.getParameter("teamName")%> Team Page</h4> <form action="" method="GET" id="createMeeting">
+			<h1 class="teamName"><%=request.getParameter("teamName")%> Team Page</h1> <form action="" method="GET" id="createMeeting">
                 <div class="centerme">
                     <input type="hidden" name="teamName" id="teamName" value="<%=(String)request.getParameter("teamName")%>">
                 </div>
             </form>
+            </div>
+            <div class="container-fluid">
 			<h2>Team Members</h2> 
-			<table>
+			<table class="table">
 			<% String numMembers = request.getParameter("memberCount");
 			
 			for (int i=0; i<userIDs.size(); i++)
 			{
 				int j = i+1;
 				String tM = "teamMember" + j;
-				%> <tr><h4><%=userIDs.get(i)%></h4></tr> <% 
+				%> <tr><td><h5><%=userIDs.get(i)%></h5></td></tr> <% 
 			}
 			
 			%>
 			</table>
 		</div>
+		<div class="container-fluid">
 		<div id="currentMeetings" class="container-fluid">
-			<h3>Team Meetings</h3>
-			<table>
-					<% for (int i=0; i<meetingNames.size(); i++) { %>
+			<h2>Team Meetings</h2>
+			<table class="table">
+			<tr>
+				<th scope="col">Meeting Name</th>
+				<th scope="col">Meeting Time</th>
+				<th scope="col">Meeting Location</th>
+			</tr>
+					<% if (meetingNames.size() == 0) {
+						%> <tr><td>No meetings created yet.</td></tr> <% 
+					}
+					for (int i=0; i<meetingNames.size(); i++) { %>
 						<tr>
 						<form name="myForm" method="GET" action="Meeting.jsp">
-						<td><input name="meetingName" type="submit" value="<%=meetingNames.get(i)%>"></td>
-						</form><br>
-						<td>Time: <h5><%=meetingTimes.get(i)%></h5></td><br>
+						<td><input name="meetingName" type="submit" class="btn btn-primary btn-block" value="<%=meetingNames.get(i)%>"></td>
+						</form>
+						<td>Time: <h5><%=meetingTimes.get(i)%></h5></td>
 						<td>Location: <h5><%=meetingLocations.get(i)%></h5></td>
 						</tr>
 						<% } %>
 			</table>
+		</div>
 		</div>
 
 		<div class="test" id="notification">
