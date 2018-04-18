@@ -283,8 +283,8 @@ button:focus {
 		<div id="teams">
 			<h3>Teams</h3>
 			<table class="table">
-			<tr><td>Team ID</td>
-			<td>Team Name</td></tr>
+			<tr>
+				
 				<%
 					for (int i = 0; i < teamNames.size(); i++)
 					{
