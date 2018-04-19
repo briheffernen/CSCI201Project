@@ -36,4 +36,9 @@ public class ScheduleSet {
 		}
 		return ss.get(0);
 	}
+	public void print()
+	{
+		for(int i = 0; i < ss.size();i++)
+			ss.get(i).print();
+	}
 }

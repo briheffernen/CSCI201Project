@@ -94,7 +94,7 @@ public class Interval {
 	public void print()
 	{
 		System.out.println("start: "+sdf.format((Date)start.getTime()));
-		System.out.println("start: "+sdf.format((Date)start.getTime()));
+		System.out.println("end: "+sdf.format((Date)start.getTime()));
 	}
 
 }
