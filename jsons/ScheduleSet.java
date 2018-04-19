@@ -27,6 +27,7 @@ public class ScheduleSet {
 		    		t.add(ss.get(i));
 		    	else
 		    		mergeThreads.add(new Merge(ss.get(i),ss.get(i+1)));
+		    	i++;
 		    }
 		    for (int i=0; i < mergeThreads.size(); i++) 
 		    	pool.execute(mergeThreads.get(i));
