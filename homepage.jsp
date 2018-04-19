@@ -5,6 +5,35 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<% HttpSession mySession = request.getSession();
+    		String currentUser = (String)mySession.getAttribute("userID");
+    		String currentUserName = (String)mySession.getAttribute("userName"); %>
+<script>
+	var socket;
+	function connectToServer() {
+		socket = new WebSocket("ws://localhost:8080/CSCI_201FinalProject/ws");
+		socket.onopen = function(event) {
+			
+			var message = '<%=currentUserName%>';
+			sendMessage(message);
+			
+		}
+		socket.onmessage = function(event) {
+			document.getElementById("notification").innerHTML += '<div class="alert alert-warning alert-dismissible" role="alert">' +
+			  '<span type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></span>' +
+			  event.data + '</div>';
+		}
+		socket.onclose = function(event) {
+			
+		}
+	}
+	function sendMessage(message) {
+		socket.send(message);
+		return false;
+	}
+</script>
+
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Homepage</title>
 <link rel="stylesheet"
@@ -78,9 +107,9 @@ button:focus {
 </style>
 <%
 String url = "https://accounts.google.com/o/oauth2/v2/auth?";
-String scope = "scope=https://www.googleapis.com/auth/calendar&"; //https://www.googleapis.com/auth/userinfo.profile&";
+String scope = "scope=https://www.googleapis.com/auth/calendar+https://www.googleapis.com/auth/userinfo.profile+https://www.googleapis.com/auth/userinfo.email&";
 String access = "access_type=offline&";
-String redirect = "redirect_uri=http://localhost:8080/FinalProjTeam/Validate&";
+String redirect = "redirect_uri=http://localhost:8080/CSCI_201FinalProject/Validate&";
 String re ="response_type=code&";
 String client = "client_id=130203725109-1aapvdgu050h3glci9cu7go2qtji7rbu.apps.googleusercontent.com";
 String fin = url+scope+access+redirect+re+client;
@@ -226,11 +255,11 @@ System.out.println(fin);
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				conn = DriverManager
-						.getConnection("jdbc:mysql://localhost/Users?user=root&password=Iaminla123&useSSL=false");
+						.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
 				st = conn.createStatement();
 				String name = "Sheldon";
 				// rs = st.executeQuery("SELECT * from Student where fname='" + name + "'");
-				ps = conn.prepareStatement("SELECT * FROM Student WHERE fname=?");
+				ps = conn.prepareStatement("SELECT * FROM users WHERE userName=?");
 				ps.setString(1, name); // set first variable in prepared statement
 				//get the results back
 				//iterate through the object and populate the userResults div with whatever was returned
@@ -238,15 +267,15 @@ System.out.println(fin);
 				rs = ps.executeQuery();
 				int i = 1;
 				while (rs.next()) {%>
-            //Create the row
-            var row = document.createElement("tr");
-            var rowNumber = document.createElement("td");
-            rowNumber.innerHTML = <%=i++%>;
-            //Create the data cell
-            var userCell = document.createElement("td");
-            //create a link that will surround the username
-            var userLink = document.createElement("a");
-            var url = "userprofile.jsp?userID=" + "<%=rs.getString("userID")%>";
+	        //Create the row
+	        var row = document.createElement("tr");
+	        var rowNumber = document.createElement("td");
+	        rowNumber.innerHTML = <%=i++%>;
+	        //Create the data cell
+	        var userCell = document.createElement("td");
+	        //create a link that will surround the username
+	        var userLink = document.createElement("a");
+	        var url = "userprofile.jsp?userID=" + "<%=rs.getString("userID")%>";
 			//set the link to the userprofile page
 			userLink.setAttribute('href', url);
 			//populate the link's html with the actual username
@@ -258,7 +287,7 @@ System.out.println(fin);
 			row.appendChild(userCell);
 			//Append our <tr> 
 			document.querySelector("tbody").appendChild(row);
-	<%}
+		<%}
 			} catch (SQLException sqle) {
 				System.out.println("SQLException: " + sqle.getMessage());
 			} catch (ClassNotFoundException cnfe) {
@@ -537,6 +566,13 @@ System.out.println(fin);
 		src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
 		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
 		crossorigin="anonymous"></script>
+				<div class="test" id="notification"></div>
+	<script>
+			$('.test').click(function(){
+				$('.test').hide();
+			});
+     </script>
+		
 </body>
 
 </html>
