@@ -5,6 +5,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<% HttpSession mySession = request.getSession();
+    		String currentUser = (String)mySession.getAttribute("userID");
+    		String currentUserName = (String)mySession.getAttribute("userName"); %>
+<script>
+	var socket;
+	function connectToServer() {
+		socket = new WebSocket("ws://localhost:8080/CSCI_201FinalProject/ws");
+		socket.onopen = function(event) {
+			
+			var message = '<%=currentUserName%>';
+			sendMessage(message);
+			
+		}
+		socket.onmessage = function(event) {
+			document.getElementById("notification").innerHTML += '<div class="alert alert-warning alert-dismissible" role="alert">' +
+			  '<span type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></span>' +
+			  event.data + '</div>';
+		}
+		socket.onclose = function(event) {
+			
+		}
+	}
+	function sendMessage(message) {
+		socket.send(message);
+		return false;
+	}
+</script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Homepage</title>
 <link rel="stylesheet"
@@ -71,26 +99,24 @@ button:focus {
 </style>
 <%
 String url = "https://accounts.google.com/o/oauth2/v2/auth?";
-String scope = "scope=https://www.googleapis.com/auth/calendar&"; //https://www.googleapis.com/auth/userinfo.profile&";
+String scope = "scope=https://www.googleapis.com/auth/calendar+https://www.googleapis.com/auth/userinfo.profile+https://www.googleapis.com/auth/userinfo.email&";
 String access = "access_type=offline&";
-String redirect = "redirect_uri=http://localhost:8080/FinalProjTeam/Validate&";
+String redirect = "redirect_uri=http://localhost:8080/CSCI_201FinalProject/Validate&";
 String re ="response_type=code&";
 String client = "client_id=130203725109-1aapvdgu050h3glci9cu7go2qtji7rbu.apps.googleusercontent.com";
 String fin = url+scope+access+redirect+re+client;
 System.out.println(fin);
-
 %>
-
 <body>
 	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
-	<a href="homepage.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
+	<a href="#" class="navbar-brand">When and Where</a>
 	<button class="navbar-toggler" data-toggle="collapse"
 		data-target="#navbarCollapse">
 		<span class="navbar-toggler-icon"></span>
 	</button>
 	<div class="collapse navbar-collapse" id="navbarCollapse">
 		<ul class="navbar-nav ml-auto">
-			<li class="navbar-item"><a href="#" class="nav-link">Profile</a>
+			<li class="navbar-item"><a href="profile.jsp" class="nav-link">Profile</a>
 			</li>
 			<li class="navbar-item"><a href="#" class="nav-link">Settings</a>
 			</li>
@@ -124,6 +150,12 @@ System.out.println(fin);
 					<!-- .form-group -->
 				</div>
 			</form>
+			<form action = "Location.jsp" method = "GET" id = "searchLocation">
+				<div class="centerme">
+					<input type="hidden" name="meetingAddress" id="meetingAddress"value="">
+					<button type="submit" class="btn btn-primary btn-block"id="createmeeting_button" disabled>Search Location</button>
+				</div>
+			</form>
 			<form action="CreateMeeting.jsp" method="GET" id="createMeeting">
 				<div class="centerme">
 					<input type="hidden" name="meetingAddress" id="meetingAddress"
@@ -132,52 +164,46 @@ System.out.println(fin);
 						id="createmeeting_button" disabled>Create Meeting</button>
 				</div>
 			</form>
+			<%HttpSession currentSession = request.getSession(); %> 
+   		 	<%String loggedin = (String) currentSession.getAttribute("userName");
+						System.out.println(loggedin);%> 
+			
+			<div id = "loggedin" value = "<%=loggedin%>"></div>
 			<div id="map"></div>
 		</div>
 		<!-- div container with user search -->
+		<% if (loggedin != null) { %>
 		<div id="usersection">
-			<form action="" method="" id="google-form">
+			<form action="userResults.jsp" method="GET" id="google-form">
 				<div class="row centerme">
 					<div class="col-xs-12 col-md-10">
-						<input type="text" name="" id="user" class="form-control"
+						<input type="text" name="user" id="user" class="form-control"
 							placeholder="Enter a username...">
 					</div>
 					<!-- .form-group -->
 					<div class="col-xs-12 col-md-2">
-						<button type="button" class="btn btn-success col-xs-12 btn-block"
+						<button type="submit" class="btn btn-success col-xs-12 btn-block"
 							id="userSearchButton" onclick="userSearch()">Search</button>
 					</div>
 					<!-- .form-group -->
 				</div>
 			</form>
 			<!-- user results -->
-			<div id="userResults">
-				<table class="table table-striped">
-					<br>
-					<thead>
-						<tr>
-							<th>#</th>
-							<th>Username</th>
-						</tr>
-					</thead>
-					<tbody>
-						<!-- Where the results go -->
-						<tr>
-							<td>1</td>
-							<td><a href="profile.jsp?userID=4">Tommy Trojan</a></td>
-						</tr>
-						<tr>
-							<td>2</td>
-								<td><a href="profile.jsp?userID=5">Jessie Locke</a></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+			
 		</div>
+		<% } %>
 	</div>
 	<!-- .container-fluid -->
 	<script type="text/javascript">
     //====================================== Users search ===================================================
+    	
+    	var loggedin = document.getElementById("loggedin").value; 
+    
+    if (loggedin = "null") {
+    		document.getElementById("")
+    	
+    }
+
     function userSearch() {
     	//clear the results if there are any
     	var tbody = document.querySelector("tbody");
@@ -196,11 +222,11 @@ System.out.println(fin);
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				conn = DriverManager
-						.getConnection("jdbc:mysql://localhost/Users?user=root&password=Iaminla123&useSSL=false");
+						.getConnection("jdbc:mysql://localhost/Final?user=root&password=Chalked1512!&useSSL=false");
 				st = conn.createStatement();
 				String name = "Sheldon";
 				// rs = st.executeQuery("SELECT * from Student where fname='" + name + "'");
-				ps = conn.prepareStatement("SELECT * FROM Student WHERE fname=?");
+				ps = conn.prepareStatement("SELECT * FROM users WHERE userName=?");
 				ps.setString(1, name); // set first variable in prepared statement
 				//get the results back
 				//iterate through the object and populate the userResults div with whatever was returned
@@ -360,8 +386,6 @@ System.out.println(fin);
 					mapOptions);
 			geocoder = new google.maps.Geocoder;
 			infoWindow = new google.maps.InfoWindow;
-			
-			
 			// Try HTML5 geolocation.
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(position) {
@@ -398,46 +422,63 @@ System.out.println(fin);
 								: 'Error: Your browser doesn\'t support geolocation.');
 				infoWindow.open(map);
 			}
-			google.maps.event.addListener(map,'click',function(event) {
-				placeMarker(event.latLng);
- 				
-		        if (event.placeId) {
-		          getname(event.placeId)
-		        } else {
-		          geocoder.geocode({
-		                'latLng': event.latLng
-		              },
-		              function(results, status) {
-		                if (status == google.maps.GeocoderStatus.OK) {
-		                	
-		                  if (results[0]) {
-		      				infoWindow.setContent(results[0].formatted_address);
-		      				infoWindow.open(map, marker); 
-		    					map.setCenter(results[0].geometry.location);
-		    					marker.setPosition(results[0].geometry.location);
-		                    	getname(results[0].place_id);
-		                    
-		                  }
-		                }
-		              });
-		        }
-		      });
-		  function getname(place_id) {
-		    var placesService = new google.maps.places.PlacesService(map);
-		    placesService.getDetails({
-		      placeId: place_id
-		    }, function(results, status) {
-				//infoWindow.setContent(results.formatted_address);
-				//infoWindow.open(map, marker); 
-				
-				document.getElementById("address").value = results.name;
-				validQuery = results.name;
-				document.getElementById('meetingAddress').value = validQuery;
-				console.log(document.getElementById('meetingAddress').value);
-				enableCreateMeetingButton();
-		    });
-		  }
-		
+			google.maps.event.addListener(map, 'click',
+					function(event) {
+						placeMarker(event.latLng);
+						geocodeLatLng(geocoder, map, infoWindow, event.latLng,
+								"click");
+					});
+			// this function places the marker and populates the search input 
+			function placeMarker(location) {
+				if (typeof marker !== 'undefined') {
+					marker.setMap(null);
+				}
+				marker = new google.maps.Marker({
+					position : location,
+					map : map,
+				// icon: {
+				//     url: 'images/currentLocationMarker2.png',
+				//     scaledSize: new google.maps.Size(24,24)
+				// }
+				});
+			}
+			// this function converts geocode (latitude and longitude) to a recognizable address
+			function geocodeLatLng(geocoder, map, infoWindow, latlng,
+					requestType) {
+				geocoder
+						.geocode(
+								{
+									'location' : latlng
+								},
+								function(results, status) {
+									if (status === 'OK') {
+										if (results[0]) {
+											infoWindow
+													.setContent(results[0].formatted_address);
+											infoWindow.open(map, marker);
+											if (requestType == "click") {
+												document
+														.getElementById("address").value = results[0].formatted_address;
+											}
+											validQuery = results[0].formatted_address;
+											document
+													.getElementById('meetingAddress').value = validQuery;
+											console
+													.log(document
+															.getElementById('meetingAddress').value);
+											enableCreateMeetingButton();
+										} else {
+											window.alert('No results found');
+										}
+									} else {
+										window.alert('Geocoder failed due to: '
+												+ status);
+									}
+								});
+			}
+			var marker = new google.maps.Marker({
+				map : map
+			});
 			//This function generates 
 			document.querySelector("#google-form").onsubmit = function() {
 				var addressInput = document.querySelector("#address").value
@@ -446,10 +487,6 @@ System.out.println(fin);
 				geotest.geocode({
 					address : addressInput
 				}, function(results) { // This anonymous function runs when geocode() is done 
-					//(aka it is done converting the address into a latlng obj)
-					// console.log("LatLng: ");
-					// console.log(results[0].geometry.location.lat());
-					// console.log(results[0].geometry.location.lng());
 					map.setCenter(results[0].geometry.location);
 					marker.setPosition(results[0].geometry.location);
 					geocodeLatLng(geotest, map, infoWindow,
@@ -464,26 +501,7 @@ System.out.println(fin);
 				}
 				return false;
 			}
-		  
 		}
-		
-		
-			// this function places the marker and populates the search input 
- 			function placeMarker(location) {
-				if (typeof marker !== 'undefined') {
-					marker.setMap(null);
-				}
-				marker = new google.maps.Marker({
-					position : location,
-					map : map,
-				// icon: {
-				//     url: 'images/currentLocationMarker2.png',
-				//     scaledSize: new google.maps.Size(24,24)
-				// }
-				});
-			}
- 
-
 		//====================================== Creating a Meeting ===================================================
 		//These functions define the disable and enable createMeeting buttons
 		function enableCreateMeetingButton() {
@@ -491,10 +509,32 @@ System.out.println(fin);
 				document.getElementById("createmeeting_button").disabled = false;
 			}
 		}
-	
+		// function disableCreateMeetingButton() {
+		//     document.getElementById("createmeeting_button").disabled = true;
+		// }
+		// document.getElementById("address").oninput = function() {
+		//     if (document.getElementById("address").value.length == 0) {
+		//         document.getElementById("createmeeting_button").disabled = false;
+		//     } else {
+		//         document.getElementById("createmeeting_button").disabled = true;
+		//     }
+		// }
+		//This function disables and enables the Create Meeting button
+		// document.getElementById("address").addEventListener('input', function() {
+		//     console.log(document.getElementById("address").value);
+		//     console.log("valid query: " + validQuery);
+		//     if ((document.getElementById("address").value !== "") && (document.getElementById("createmeeting_button").disabled = false)) {
+		//         validQuery = document.getElementById("address").value;
+		//         disableCreateMeetingButton();
+		//     } else if (document.getElementById("address").value.toUpperCase() == validQuery.toUpperCase()) {
+		//         enableCreateMeetingButton();
+		//     } else {
+		//         disableCreateMeetingButton();
+		//     }
+		// });
 	</script>
 	<script
-		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCDV9Wi54vI3fIhOxEBHJDokoiEMAiLGu8&libraries=places&callback=initMap"></script>
+		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=initMap"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
 		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 		crossorigin="anonymous"></script>
@@ -506,6 +546,12 @@ System.out.println(fin);
 		src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
 		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
 		crossorigin="anonymous"></script>
+		<div class="test" id="notification"></div>
+		<script>
+$('.test').click(function(){
+	$('.test').hide();
+});
+     </script>
 </body>
 
 </html>
