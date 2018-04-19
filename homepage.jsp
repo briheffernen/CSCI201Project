@@ -88,7 +88,7 @@ System.out.println(fin);
 %>
 
 <body>
-	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
+	<nav class="navbar navbar-light bg-light navbar-expand-sm">
 	<a href="homepage.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
 	<button class="navbar-toggler" data-toggle="collapse"
 		data-target="#navbarCollapse">
@@ -107,13 +107,14 @@ System.out.println(fin);
 	</nav>
 	<div class="container-fluid">
 		<div id="searchoptions">
+			<div id = "header"><img src = "WhenWhereLogo.png" style="width:250px;height:150px;"></div>
+		
 			<button type="button" class="btn-lg btn-primary fader" href="#"
 				id="locationSearch" title="Click to toggle">Searching for
 				locations</button>
 			<button type="button" class="btn-lg btn-success btn-disabled fader"
 				href="#" id="userSearch" title="Click to toggle">Searching
 				for users</button>
-			<div id = "header" style = "visibility:hidden"><img src = "WhenWhereLogo.png" style="width:250px;height:150px;"></div>
 			
 		</div>
 		<!-- div container with map search -->
