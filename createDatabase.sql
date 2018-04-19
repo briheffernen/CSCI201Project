@@ -4,7 +4,9 @@ CREATE SCHEMA Final;
 USE Final;
 CREATE TABLE users (
 userID varchar(50) primary key not null,
-userName varchar(50) not null
+userName varchar(50) not null,
+access_token varchar(150) not null,
+refresh_token varchar(150)
 );
 
 CREATE TABLE Location (
@@ -50,4 +52,3 @@ CREATE TABLE TeamMembers(
 INSERT INTO Location (locName) VALUES ('Birnkrant Residental College'); 
 INSERT INTO Team (teamName) VALUES ('test team!'); 
 INSERT INTO meeting (meetingTime, meetingLocation, locationID, meetingName, teamID) VALUES ('2018-04-16 12:00:00', 'Birnkrant Residental College', 1, 'Test Meeting', 1);
-
