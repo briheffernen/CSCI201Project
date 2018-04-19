@@ -74,6 +74,23 @@ button:focus {
 .row {
     text-align: center;
 }
+
+.lyft-web-button.large > .cta-eta > .eta {
+  font-size: 20px;
+}
+.lyft-web-button.large > .arrow-icon {
+  margin-left: 20px;
+}
+.lyft-web-button.large > .price-range {
+  font-size: 20px;
+}
+.lyft-web-button.large > .lyft-logo > svg {
+  width: 55px; /* fix svg rendering for IE */
+  height: 40px; /* fix svg rendering for IE */
+}
+
+
+
 </style> 
 
     <script> 
@@ -178,18 +195,15 @@ button:focus {
 			      <div class="card-body"><%=teams %></div>
 			    </div>
 			  </div>
+			  <div class = "container" id="lyft-web-button-parent"></div>        				  
 			</div>
-						
-    			
+
     		</div>
     		<div class = "row">
     		    	<button type="button" class="btn-lg btn-primary fader col-lg-6" href="#" id="directionsSearch" title="Click to toggle">Get Directions</button>  
     		</div>
     		<div class = "row">
     			<div class = "col-lg-6" id = "directions" style = "display:none"></div>
-    		</div>
-    		<div class = "row">
-   			<div class = "container" id="lyft-web-button-parent"></div>        	
     		</div>
     </div>
     
@@ -202,88 +216,10 @@ button:focus {
     <div id = "address" type = "hidden"></div>
     <div id = "destLat" type = "hidden"></div>
     <div id = "destLng" type = "hidden"></div>
+    <a href="/webpack-dev-server/production.single.html" target="_parent"></a>
     
     <script type="text/javascript">
-    //====================================== Directions ===================================================
     
-    document.getElementById("directionsSearch").onclick = function() {
-       
-        var directionsDisplay = new google.maps.DirectionsRenderer;
-        var directionsService = new google.maps.DirectionsService;
-        
-        directionsDisplay.setMap(map);
-        document.getElementById('directions').innerHTML = ''; 
-        directionsDisplay.setPanel(document.getElementById('directions'));
-        
-        calculateAndDisplayRoute(directionsService, directionsDisplay);
-       	
-        function calculateAndDisplayRoute(directionsService, directionsDisplay) {
-        		console.log("getting directions");
-        		var pos; 
-            var end = document.getElementById("address").value;
-            
-            console.log(end);
-            
-            directionsService.route({
-              origin: {
-            	  	lat: 34.0224,
-            	  	lng: -118.2851
-              },
-              destination: end,
-              travelMode: 'DRIVING'
-            }, function(response, status) {
-              if (status === 'OK') {
-                directionsDisplay.setDirections(response);
-              } else {
-                window.alert('Directions request failed due to ' + status);
-              }
-            });
-          }
-        
-        document.getElementById("directions").style.display = "block";
-
-    }
-    //====================================== Lyft ===================================================
-  	var destLat = document.getElementById('destLat').value; 
-  	var destLng = document.getElementById('destLng').value; 
-
-    var OPTIONS = {
-    	      scriptSrc: 'lyftWebButton.js',
-    	      namespace: '',
-    	      clientId: '',
-    	      clientToken: '',
-    	      location: {
-    	        pickup: {},
-    	        destination: {
-    	          latitude: '37.7604',
-    	          longitude: '-122.4132',
-    	        },
-    	      },
-    	      parentElement: document.getElementById('lyft-web-button-parent'),
-    	      queryParams: {
-    	        credits: ''
-    	      },
-    	      theme: 'multicolor large',
-    	    };
-    	    (function(options) {
-    	      var window = this.window;
-    	      var document = this.document;
-    	      window.lyftInstanceIndex = window.lyftInstanceIndex || 0;
-    	      var parentElement = options.parentElement;
-    	      var scriptElement = document.createElement('script');
-    	      scriptElement.async = true;
-    	      scriptElement.onload = function() {
-    	        window.lyftInstanceIndex++;
-    	        var instanceName = options.namespace ? ('lyftWebButton' + options.namespace + window.lyftInstanceIndex) : 'lyftWebButton' + window.lyftInstanceIndex;
-    	        window[instanceName] = window['lyftWebButton'];
-    	        options.objectName = instanceName
-    	        window[instanceName].initialize(options);
-    	      };
-    	      scriptElement.src = options.scriptSrc;
-    	      parentElement.insertBefore(scriptElement, parentElement.childNodes[0]);
-    	    }).call(this, OPTIONS);
-
-
     //====================================== Creating a Map ===================================================
 
     var map;
@@ -333,6 +269,53 @@ button:focus {
     	      });
     	    latLng = marker.place.location; 
     	    map.setCenter(latLng);
+    	    
+		var lat = results[0].geometry.location.lat();
+		var lng = results[0].geometry.location.lng();
+			
+		
+	    //====================================== Lyft ===================================================
+	  	console.log("set to " + lat + ", " + lng);
+
+	    var OPTIONS = {
+	    	      scriptSrc: 'lyftWebButton.js',
+	    	      namespace: 'lyftWebButton',
+	    	      clientId: '5qMs_F9Ny8aE',
+	    	      clientToken: 'H0EOqDiJUGw5LiI2wPs1QT6ypLUEOVjdaG+sQ4yHPs+7X13Y0Fjoz6RgmWjGE0AIeDvVcpzBQ3HQmysnKoHz0Te0Sb8HbMSxTc9gFAQ+jv8Ext/qOjyJky4=',
+	    	      location: {
+	    	        pickup: {},
+	    	        destination: {
+	    	          latitude: lat,
+	    	          longitude: lng,
+	    	        },
+	    	      },
+	    	      parentElement: document.getElementById('lyft-web-button-parent'),
+	    	      queryParams: {
+	    	        credits: ''
+	    	      },
+	    	      theme: 'mulberry-dark',
+	    	    };
+	    	    (function(options) {
+	    	    		console.log("running");
+	    	      var window = this.window;
+	    	      var document = this.document;
+	    	      window.lyftInstanceIndex = window.lyftInstanceIndex || 0;
+	    	      var parentElement = options.parentElement;
+	    	      var scriptElement = document.createElement('script');
+	    	      scriptElement.async = true;
+	    	      scriptElement.onload = function() {
+	    	    	  	console.log("loaded");
+	    	        window.lyftInstanceIndex++;
+	    	        var instanceName = options.namespace ? ('lyftWebButton' + options.namespace + window.lyftInstanceIndex) : 'lyftWebButton' + window.lyftInstanceIndex;
+	    	        window[instanceName] = window['lyftWebButton'];
+	    	        options.objectName = instanceName;
+	    	        window[instanceName].initialize(options);
+	    	      };
+	    	      scriptElement.src = options.scriptSrc;
+	    	      parentElement.insertBefore(scriptElement, parentElement.childNodes[0]);
+	    	    }).call(this, OPTIONS);
+
+
       }
      
       var request = {
@@ -347,20 +330,61 @@ button:focus {
     	  		sessionStorage.placeName = place.name; 
     	  		
     			document.getElementById('address').value = place.vicinity; 
-    			document.getElementById('destLat').value = place.geometry.location.lat; 
-    			document.getElementById('destLng').value = place.geometry.location.lng; 
-    			console.log("first name part: " + place.name);
-			var query = place.name; 
-			console.log("sending id query " + query);
-    	    		document.getElementById('details').innerHTML += "Location: " + "<a href=\"Location.jsp?locationName=" + query + "\">" + place.name + "</a></br>";
+    			    			
+    			var query = place.name; 
+    	    		
+    			document.getElementById('details').innerHTML += "Location: " + "<a href=\"Location.jsp?locationName=" + query + "\">" + place.name + "</a></br>";
     	    		document.getElementById('details').innerHTML += "Address: " + place.vicinity + "</br>";
     	    		document.getElementById('details').innerHTML += "</br>";
-    	    		console.log("Address name: " + place.name.replace(' ', '+') + "\n" + "Address ID: " + place.place_id); 
     	    		
     	  	}
       }		
     }
+    
+
+    //====================================== Directions ===================================================
+    
+    document.getElementById("directionsSearch").onclick = function() {
+       
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var directionsService = new google.maps.DirectionsService;
         
+        directionsDisplay.setMap(map);
+        document.getElementById('directions').innerHTML = ''; 
+        directionsDisplay.setPanel(document.getElementById('directions'));
+        
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
+       	
+        function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        		console.log("getting directions");
+        		var pos; 
+            var end = document.getElementById("address").value;
+            
+            console.log(end);
+            
+            directionsService.route({
+              origin: {
+            	  	lat: 34.0224,
+            	  	lng: -118.2851
+              },
+              destination: end,
+              travelMode: 'DRIVING'
+            }, function(response, status) {
+              if (status === 'OK') {
+                directionsDisplay.setDirections(response);
+              } else {
+                window.alert('Directions request failed due to ' + status);
+              }
+            });
+          }
+        
+        document.getElementById("directions").style.display = "block";
+
+    }
+    </script> 
+    
+    <script>
+     
     </script>
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCDV9Wi54vI3fIhOxEBHJDokoiEMAiLGu8&libraries=places&callback=initialize"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
