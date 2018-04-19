@@ -6,6 +6,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -75,7 +81,7 @@ public class Validate extends HttpServlet {
     		JsonObject jsonObject = jsonTree.getAsJsonObject();	
     		System.out.println(json);
     		String access_token = jsonObject.get("access_token").getAsString();
-    		String refresh_token;
+    		String refresh_token = null;
     		if(jsonObject.get("refresh_token") != null)
     			refresh_token = jsonObject.get("refresh_token").getAsString();
 				url = new URL("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token="+access_token);
@@ -105,6 +111,74 @@ public class Validate extends HttpServlet {
 	    	request.getSession().setAttribute("userName", name);
 	    	request.getSession().setAttribute("userID", email);
     		String next = "/profile.jsp";
+    		
+//////////////////////SQL CODE /////////////////////////
+    		
+    		
+    		
+    		
+    		
+    		
+    		
+    		
+    		
+	Connection conn = null;
+	Statement st = null;
+	PreparedStatement ps = null;
+	ResultSet rs = null;
+	try {
+		Class.forName("com.mysql.jdbc.Driver");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost/Final?user=root&password=qawsqaws&useSSL=false");
+		st = conn.createStatement();
+		
+		// check if user is in database
+		ps = conn.prepareStatement("SELECT * FROM users WHERE userID=?");
+		ps.setString(1, (String)request.getSession().getAttribute("userName")); // set first variable in prepared statement
+		rs = ps.executeQuery();
+		
+		// add user to database if they are not already there
+		if (!rs.next())
+		{
+			ps = conn.prepareStatement("INSERT INTO USERS (userID, userName, accessToken, refreshToken) VALUES (?, ?, ?, ?)");
+			System.out.println("!!!!" + request.getParameter("email"));
+			ps.setString(1, request.getParameter("email"));
+			ps.setString(2, request.getParameter("name"));
+			ps.setString(3, access_token);
+			if(refresh_token != null)
+			{
+				ps.setString(4, refresh_token);
+			}
+			else
+			{
+				ps.setString(4, "");
+			}
+			ps.execute();
+		}
+		
+	} catch (SQLException sqle) {
+		System.out.println ("SQLException: " + sqle.getMessage());
+	} catch (ClassNotFoundException cnfe) {
+		System.out.println ("ClassNotFoundException: " + cnfe.getMessage());
+	} finally {
+		try {
+			if (rs != null) {
+				rs.close();
+			}
+			if (st != null) {
+				st.close();
+			}
+			if (ps != null) {
+				ps.close();
+			}
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		}
+	}
+	///////////////////// END SQL CODE ///////////////////////
+	
     	
 	RequestDispatcher dispatch = getServletContext().getRequestDispatcher(next);
 		
