@@ -27,7 +27,7 @@ public class queryReviews extends HttpServlet {
 
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("IN VALIDATION");
+
 		String total = "";
 		String search = request.getParameter("search");
 		String sentFrom = request.getParameter("sentFrom");
@@ -48,7 +48,7 @@ public class queryReviews extends HttpServlet {
 						"SELECT u.userName, r.review, l.locName " + "FROM Users u, LocationReviews r, Location l"
 								+ " WHERE locName=?" + " AND r.locationID=l.locationID" + " AND u.userID=r.userID");
 
-				String name = search.replaceAll("\\s+", "");
+				String name = search;
 				System.out.println("Query with " + name);
 
 				ps.setString(1, name);
@@ -58,7 +58,7 @@ public class queryReviews extends HttpServlet {
 				while (rs.next()) {
 					String user = rs.getString("userName");
 					String review = rs.getString("review");
-					total += user + ":\n" + review + "</br>";
+					total += "<h4>" + user + ": </h4>" + review + "</br>";
 				}
 
 			} catch (SQLException sqle) {

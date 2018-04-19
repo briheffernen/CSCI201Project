@@ -33,8 +33,11 @@ public class queryMeeting extends HttpServlet {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		ResultSet rs2 = null;
+		ResultSet rs3 = null;
 
-		String details = "";
+		String time = "";
+		String users = "";
+		String teams = "";
 		String locationName = "";
 
 		try {
@@ -47,9 +50,9 @@ public class queryMeeting extends HttpServlet {
 			ps = conn.prepareStatement("SELECT l.locName, m.meetingID, m.meetingTime" + " FROM Location l, meeting m"
 					+ " WHERE meetingName=?" + " AND l.locationID=m.LocationID");
 
-			String name = search.replaceAll("\\s+", "");
-			System.out.println("Query with " + name);
-			ps.setString(1, name);
+			// String name = search.replaceAll("\\s+", "");
+			System.out.println("Query with " + search);
+			ps.setString(1, search);
 
 			rs = ps.executeQuery();
 
@@ -65,11 +68,7 @@ public class queryMeeting extends HttpServlet {
 
 			System.out.println("meeting id: " + meetingID);
 
-			// Add location to HTML
-			// details += "Location: " + "<a href=\"Location.jsp?VAR=" + loc + "\">" + loc +
-			// "</a></br>";
-
-			details += "<h1>Meeting Time: <h1>" + meetingTime + "</br>";
+			time += "<p>" + meetingTime + "<p>";
 
 			System.out.println("Location name: " + loc);
 
@@ -81,20 +80,54 @@ public class queryMeeting extends HttpServlet {
 
 			// Get users in the meeting
 
-			details += "<h2>Users:<h2></br>";
-
 			ps = conn.prepareStatement("SELECT u.userID, m.meetingID" + " FROM Users u, meeting_users m"
 					+ " WHERE meetingID=?" + " AND m.userID=u.userID");
 			ps.setInt(1, meetingID);
 
-			rs = ps.executeQuery();
+			rs2 = ps.executeQuery();
+			System.out.println("Reading in users");
 
-			while (rs.next()) {
+			if (!rs2.next()) {
+				users += "<p>This meeting has no users<p><br>";
+
+			} else {
 				String userName = rs.getString("userID");
-				details += userName + "<br>";
+				users += "<p>" + userName + "<p><br>";
+				System.out.println("Reading in users");
+
+				while (rs2.next()) {
+					userName = rs.getString("userID");
+					if (userName != null) {
+						users += "<p>" + userName + "<p><br>";
+
+					}
+				}
 			}
+
 			ps.close();
-			System.out.println(details);
+			rs2.close();
+
+			ps = conn.prepareStatement("SELECT t.teamName, t.teamID" + " FROM Team t, meeting m"
+					+ " WHERE m.teamID=t.teamID " + "AND m.meetingID=?");
+			ps.setInt(1, meetingID);
+			rs3 = ps.executeQuery();
+
+			if (!rs3.next()) {
+				teams += "This meeting has no teams<br>";
+			} else {
+				String teamName = rs3.getString("teamName");
+				teams += "<p>" + teamName + "<p><br>";
+
+				while (rs3.next()) {
+					teamName = rs3.getString("teamName");
+					if (teamName != null) {
+						teams += "<p>" + teamName + "<p><br>";
+					}
+				}
+			}
+
+			rs3.close();
+			ps.close();
 
 		} catch (SQLException sqle) {
 			System.out.println("SQLException: " + sqle.getMessage());
@@ -118,8 +151,12 @@ public class queryMeeting extends HttpServlet {
 				System.out.println("sqle closing streams: " + sqle.getMessage());
 			}
 
-			request.getSession().setAttribute("reviews", details);
+			request.getSession().setAttribute("time", time);
+			request.getSession().setAttribute("users", users);
+			request.getSession().setAttribute("teams", teams);
+
 			request.getSession().setAttribute("locationName", locationName);
+			System.out.println("Passing location name: " + locationName);
 
 			String pageToForward = "/Meeting.jsp?meetingName=" + search;
 
