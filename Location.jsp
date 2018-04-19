@@ -24,6 +24,7 @@
 			if(xhttp.responseText.trim().length > 0) {	
 				document.getElementById("reviews").innerHTML = xhttp.responseText; 
 			}
+
 			return true; 
 		}	
 	</script>
@@ -41,14 +42,44 @@
 }
 
 #map {
-    height: 400px;
-    width: 50%;
-    margin: auto auto;
+	top: 0; 
+	left: 0;  
+    width: 100%;
     float: left; 
+}
+
+#locInfo {
 }
 
 #title {
 	font-style: bold; 
+}
+
+#reviews {
+
+
+}
+
+#details {
+
+
+}
+
+p {
+	display: inline;
+
+}
+
+h4 {
+	font-family: Arial, Helvetica, sans-serif	;
+	font-size: 18pt; 	
+	font-weight: bold; 
+	display: inline; 
+}
+
+#reviewCard {
+	width: 100%; 
+
 }
 
 .centerme {
@@ -56,18 +87,25 @@
     width: 80%;
 }
 
+#user {
+	display: inline; 
+
+}
+
+
+
 </style> 
 
 <body onLoad = "return loadReviews();">
 	<nav class="navbar navbar-light bg-light navbar-expand-sm">
-		<a href="/Final_Project/Test.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
+		<a href="/Final_Project/homepage.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
 	    	<button class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
 	    		<span class="navbar-toggler-icon"></span>
 	    </button>
 	    <div class="collapse navbar-collapse" id="navbarCollapse">
 	    		<ul class="navbar-nav ml-auto">
 	        	<li class="navbar-item">
-	        		<a href="#" class="nav-link">Profile</a>
+	        		<a href="" id = "profile" class="nav-link">Profile</a>
 	        	</li>
 	        <li class="navbar-item">
 	        		<a href="#" class="nav-link">Settings</a>
@@ -81,40 +119,92 @@
     <!-- .container-fluid -->
     <div class = "container-fluid" id = "container">
 	    
-	    <div class = "container" id = "container">
-	    
-	    		<div class = "col-sm" id = "map"></div>
-	    		<div class = "col-sm" id = "locInfo">
+	    <div class = "row">   
+	    		<div class = "col-lg-6" id = "map"></div>
+	    		<div class = "col-lg-6" id = "locInfo">
 		    		<div id = "title"></div>
-		    		<div class = "col-sm" id = "details"></div> 
+		    		<div id = "detailsCard">
+		    			<div class = "card-header"><h3>Address: </h3></div>
+		    			<div class = "card-body">
+		    				<h5 class = "card-text" id = "details"></h5>
+		    			</div>
+		    		</div>
+		    		<div id = "reviewCard">
+		    			<div class = "card-header"><h3>Reviews: </h3></div>
+		    			<div class = "card-body">
+		    				<h5 class = "card-text" id = "reviews"></h5>
+		    			</div>
+		    		</div>
+		    		<div id = "reviewSection">
+		    			<div class = "card-header"><h3>Leave Review: </h3></div>
+		    			<div class = "card-body">
+		    				<h5 class = "card-text">
+			    				<form id = "review" method = "GET" action = "addReview">
+			    					<div class = "row">
+			    						<div class = "col-lg-6"><div id = "user" style = "width: 80%"><h4>Username: </h4></div>				</div>
+			    						<div class =  "col-lg-6"><textarea id = "leaveReview" name = "leaveReview" type = "text" placeholder = "Leave Review"></textarea></div>
+			    						<input id = "loc" name = "loc" type = "hidden">
+			    						<button type="submit" class="btn-lg btn-primary fader col-lg-12" id="directionsSearch">Submit</button>  
+
+		    						</div>
+			    				</form>		    			
+		    				</h5>
+		    			</div>
+		    		</div>
+		    		
+		    		<div id = "reviewSection">
+		    		</div>		    		
 	    		</div>
 	    </div>
 	    
-	    <div id = "reviews">${reviews}</div>
-	    
 	    <script>console.log("reviews:\n" + document.getElementById("reviews").innerHTML)</script>
 	    
-	    <form id = "review" method = "GET" action = "addReview">
-	    		<input id = "leaveReview" name = "leaveReview" type = "text" placeholder = "Leave Review"/>
-	    		<input id = "user" name = "user" type = "text">    		
-	    		<input id = "loc" name = "loc" type = "hidden">
-	    	
-	    		<input id = "submit" type = "submit">
-	    </form>
     </div>
+    
+    <% HttpSession currentSession = request.getSession(); %> 
+	<% String loggedin = (String) currentSession.getAttribute("userName");%> 
+	<% System.out.println("Logged in as: " + loggedin); %>
+    
+    
+    <div id = "username" type = "hidden" style = "display:none"><%=loggedin%></div>
+    
+    	<script> 
+		var user1 = document.getElementById("username").innerHTML; 
+		if (user1 == 'null') {
+			document.getElementById("profile").style.display = "none";
+		} else {
+		 	document.getElementById("profile").href="Profile.jsp?userName=" + user1; 			
+		}
+	 	console.log("user1: " + user1); 
+	</script>
     
     <script type="text/javascript">
 
     //====================================== Creating a Map ===================================================
-	
+			
+    var user2 = document.getElementById("username").innerHTML;
+    console.log("user2: " + user2); 
+    
+    if (user2 != 'null') {
+        document.getElementById("user").innerHTML += "<p>" + user2 + "</p>"; 
+    } else {
+        console.log("fake"); 
+
+		document.getElementById("reviewSection").style.display = "none"; 
+		console.log("changed display");
+
+    } 
+    	
     var map;
-	var tempAddy = location.search.split('VAR=')[1] 
+	var tempAddy = location.search.split('locationName=')[1] 
 	var addy;
 	
 	var isAnAddition = sessionStorage.address; 
 	
 	if (tempAddy != null) {
 		addy = tempAddy.split('%20').join('+');
+  		sessionStorage.address = addy;  
+
 	} else {
 		addy = isAnAddition; 
 	}
@@ -141,7 +231,6 @@
         radius: '50000',
         keyword: addy,
         rankby: 'distance', 
-        key: 'AIzaSyCDV9Wi54vI3fIhOxEBHJDokoiEMAiLGu8'
       };
 
       service = new google.maps.places.PlacesService(map);
@@ -173,9 +262,9 @@
     			
     	  		document.getElementById('loc').value = place.name; 
 
-    	    		document.getElementById('title').innerHTML += "Name: " + place.name + "</br>";
-    	    		document.getElementById('details').innerHTML += "ID: " + place.place_id + "</br>";
-    	    		document.getElementById('details').innerHTML += "Address: " + place.vicinity + "</br>";
+    	    		document.getElementById('title').innerHTML += "<h2>" + place.name + "</h2></br>";
+    	    		//document.getElementById('details').innerHTML += "<h3>ID: <h3>" + place.place_id + "</br>";
+    	    		document.getElementById('details').innerHTML += place.vicinity + "</br>";
     	    		
     	    		console.log("Address name: " + place.name + "\n" + "Address ID: " + place.place_id); 
     	    		

@@ -27,10 +27,10 @@ public class addReview extends HttpServlet {
 		System.out.println("ADDING");
 
 		String review = request.getParameter("leaveReview");
-		String name = request.getParameter("user");
-		String location = request.getParameter("loc").replaceAll("\\s+", "");
+		String name = (String) request.getSession().getAttribute("userName");
+		String location = request.getParameter("loc");
 
-		System.out.println("add review for " + location);
+		System.out.println("add review for " + location + " by " + name);
 
 		Connection conn = null;
 		Statement st = null;

@@ -5,27 +5,26 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type refresh" content="text/html; charset=UTF-8">
 <title>Scheduled Meeting</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 
 <style>
-#searchoptions {
-    margin-top: 60px;
-    text-align: center;
-    font-size: 50px;
+
+#title {
+	font-family: Arial, Helvetica, sans-serif	;
+	font-size: 28pt; 	
+	font-weight: bold; 
 }
 
 #map {
     height: 400px;
     width: 90%;
     margin: auto auto;
-}
-
-.centerme {
-    margin: auto auto;
-    width: 80%;
+    float: left; 
 }
 
 #mapsection {
@@ -33,19 +32,27 @@
     padding-bottom: 30px;
 }
 
+
 #directionsSearch {
-    margin: 20px auto;
-    width: 200px;
+    float: left; 
+}
+
+#details {
+	text-align: center; 
+}
+
+#meetingDetails {
+	text-align: left; 
 }
 
 button:focus {
     outline: none !important;
 }
 
-.btn-disabled {
-    opacity: 0.5;
-}
+.btn {
+	float: left; 
 
+}
 .fader {
     -webkit-transition: .6s;
     transition: .6s;
@@ -57,6 +64,11 @@ button:focus {
 
 .btn-lg:hover {
     cursor: pointer;
+}
+
+#accordion {
+    height: 400px;
+    width: 90%;
 }
 
 .row {
@@ -78,14 +90,22 @@ button:focus {
 		console.log("Sent parameter for meeting: " + query);
 		xhttp.send();  //if you get to this line, then you have gotten a response 
 		
+		window.onload = function() {
+		    if(!window.location.hash) {
+
+
+		        window.location = window.location + '#loaded';
+		        window.location.reload();
+		    }
+		}
 
 	</script>
 
 
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
-        <a href="#" class="navbar-brand">When and Where</a>
+    <nav class="navbar navbar-light bg-light navbar-expand-sm">
+		<a href="/Final_Project/homepage.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
         <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -103,31 +123,80 @@ button:focus {
             </ul>
         </div>
     </nav>
-    <!-- .container-fluid -->
-    <div class = "container-fluid" id = "map"></div>
+    <!-- Meeting Info -->
+    <%String time = (String) request.getSession().getAttribute("time"); %>
+	<%String users = (String) request.getSession().getAttribute("users"); %>
+	<%String teams = (String) request.getSession().getAttribute("teams"); %>
+	
+	<%String locationName = (String) request.getSession().getAttribute("locationName");%>	
     
-    <div class = "container-fluid" id = "title"></div>
+    <!-- .container-fluid -->
+    <div class = "container-fluid" id = "container">
+    		<div class = "row">
+    		     <div class = "col-lg-12" id = "title"></div>
+    		</div>
+    		<div class = "row">    			
+    			<div class = "col-lg-12" id = "details"></div>
+    		</div>
+    		<div class = "row">
+    			<div class = "col-lg-6" id = "map"></div>
+			<div class = "col-lg-6" id="accordion">
+			  <div class="card">
+			    <div class="card-header" id="headingOne">
+			      <h5 class="mb-0">
+			        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+			          Meeting Time
+			        </button>
+			      </h5>
+			    </div>
+			
+			    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+			      <div class="card-body"><%=time %></div>
+			    </div>
+			  </div>
+			  <div class="card">
+			    <div class="card-header" id="headingTwo">
+			      <h5 class="mb-0">
+			        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+			          Other Users
+			        </button>
+			      </h5>
+			    </div>
+			    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+			      <div class="card-body"><%=users %></div>
+			    </div>
+			  </div>
+			  <div class="card">
+			    <div class="card-header" id="headingThree">
+			      <h5 class="mb-0">
+			        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+			          Teams
+			        </button>
+			      </h5>
+			    </div>
+			    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+			      <div class="card-body"><%=teams %></div>
+			    </div>
+			  </div>
+			</div>
+						
+    			
+    		</div>
+    		<div class = "row">
+    		    	<button type="button" class="btn-lg btn-primary fader col-lg-6" href="#" id="directionsSearch" title="Click to toggle">Get Directions</button>  
+    		</div>
+    		<div class = "row">
+    			<div class = "col-lg-6" id = "directions" style = "display:none"></div>
+    		</div>
+    		<div class = "row">
+   			<div class = "container" id="lyft-web-button-parent"></div>        	
+    		</div>
+    </div>
+    
+    <!-- Meeting & Place Name Info -->
     <script>	document.getElementById("title").innerHTML = location.search.split("meetingName=")[1].replace('%20', ' ');</script>
     
-    <div class = "container" id = "details"></div>
-    <div class = "container" id="lyft-web-button-parent"></div>
-    
-    <!-- Directions -->
-    <button type="button" class="btn-lg btn-primary fader" href="#" id="directionsSearch" title="Click to toggle">Get Directions</button>
-    <div class = "container" id = "directions" style = "display:none"></div>
-        
-    <!-- Meeting Info -->
-    <%String details = (String) request.getSession().getAttribute("locationName"); %>
-	<%String locationName = (String) request.getSession().getAttribute("locationName");%>	
-	
-    <div class = "container" id = "meetingDetails"><%=details%></div>
-	<div id = "placeName" type = "hidden"><%=locationName %></div>
-   
-    <script>
-		console.log("meeting data:\n" + document.getElementById("meetingDetails").innerHTML);
-		console.log("location name:\n" + document.getElementById("placeName").value);  
-    </script>
-    
+	<div id = "placeName" type = "hidden" style = "display:none"><%=locationName %></div>  
 
     <!-- Directions Info -->
     <div id = "address" type = "hidden"></div>
@@ -143,6 +212,7 @@ button:focus {
         var directionsService = new google.maps.DirectionsService;
         
         directionsDisplay.setMap(map);
+        document.getElementById('directions').innerHTML = ''; 
         directionsDisplay.setPanel(document.getElementById('directions'));
         
         calculateAndDisplayRoute(directionsService, directionsDisplay);
@@ -282,9 +352,9 @@ button:focus {
     			console.log("first name part: " + place.name);
 			var query = place.name; 
 			console.log("sending id query " + query);
-    	    		document.getElementById('details').innerHTML += "Location: " + "<a href=\"Location.jsp?VAR=" + query + "\">" + place.name + "</a></br>";
+    	    		document.getElementById('details').innerHTML += "Location: " + "<a href=\"Location.jsp?locationName=" + query + "\">" + place.name + "</a></br>";
     	    		document.getElementById('details').innerHTML += "Address: " + place.vicinity + "</br>";
-    	    		document.getElementById('details').innerHTML += "ID: " + place.id + "</br>";
+    	    		document.getElementById('details').innerHTML += "</br>";
     	    		console.log("Address name: " + place.name.replace(' ', '+') + "\n" + "Address ID: " + place.place_id); 
     	    		
     	  	}
@@ -295,7 +365,6 @@ button:focus {
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCDV9Wi54vI3fIhOxEBHJDokoiEMAiLGu8&libraries=places&callback=initialize"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>
