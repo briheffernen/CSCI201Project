@@ -142,7 +142,7 @@ h4 {
 			    				<form id = "review" method = "GET" action = "addReview">
 			    					<div class = "row">
 			    						<div class = "col-lg-6"><div id = "user" style = "width: 80%"><h4>Username: </h4></div>				</div>
-			    						<div class =  "col-lg-6"><textarea id = "leaveReview" name = "leaveReview" type = "text" placeholder = "Leave Review"></textarea></div>
+			    						<div class =  "col-lg-6"><textarea id = "leaveReview" name = "leaveReview" style = "width: 100%" type = "text" placeholder = "Leave Review"></textarea></div>
 			    						<input id = "loc" name = "loc" type = "hidden">
 			    						<button type="submit" class="btn-lg btn-primary fader col-lg-12" id="directionsSearch">Submit</button>  
 
@@ -151,10 +151,7 @@ h4 {
 		    				</h5>
 		    			</div>
 		    		</div>
-		    		
-		    		<div id = "reviewSection">
-		    		</div>		    		
-	    		</div>
+		    </div>
 	    </div>
 	    
 	    <script>console.log("reviews:\n" + document.getElementById("reviews").innerHTML)</script>
@@ -170,7 +167,7 @@ h4 {
     
     	<script> 
 		var user1 = document.getElementById("username").innerHTML; 
-		if (user1 == 'null') {
+		if (user1 == 'null' || user1 == '') {
 			document.getElementById("profile").style.display = "none";
 		} else {
 		 	document.getElementById("profile").href="Profile.jsp?userName=" + user1; 			
@@ -185,13 +182,14 @@ h4 {
     var user2 = document.getElementById("username").innerHTML;
     console.log("user2: " + user2); 
     
-    if (user2 != 'null') {
-        document.getElementById("user").innerHTML += "<p>" + user2 + "</p>"; 
-    } else {
+    if (user2 == 'null' || user2 == '') {
         console.log("fake"); 
 
 		document.getElementById("reviewSection").style.display = "none"; 
 		console.log("changed display");
+
+    } else {
+        document.getElementById("user").innerHTML += "<p>" + user2 + "</p>"; 
 
     } 
     	
