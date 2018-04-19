@@ -35,7 +35,7 @@ public class Interval {
 	}
 	public boolean before(Interval that)
 	{
-		return (this.end.compareTo(that.start)==-1);
+		return (this.end.compareTo(that.start)==-1)||this.end.getTimeInMillis() == that.start.getTimeInMillis();
 	}
 	public boolean after(Interval that)
 	{

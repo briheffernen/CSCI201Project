@@ -112,7 +112,7 @@ public class Meeting_Validation extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-	protected Calendar getTimes(String []names, Calendar deadline, Calendar prefer, long dur) {
+	protected Calendar getTimes(String []names, Calendar deadline, Calendar prefer, double dur) {
 		
 		ScheduleSet ss = new ScheduleSet();
 		ExecutorService executor = Executors.newCachedThreadPool();
@@ -128,23 +128,79 @@ public class Meeting_Validation extends HttpServlet {
 		Schedule merge_inverse = merge.getInverse();
 		int left_counter = 0;
 		int right_counter = 0;
-		for(int i = 0; i < merge.sched.size();i++)
+		Calendar ans = Calendar.getInstance();
+		System.out.println(merge.sched.size());
+		for(int i = 0; i < merge.sched.size();i++) {
 			if(merge.sched.get(i).timeInInterval(prefer))
 			{
-				for(int j = 1; j < merge_inverse.sched.size(); j++)
-					if(merge_inverse.sched.get(j).between(merge.sched.get(i-1), merge.sched.get(i)))
-						left_counter = j;
-				for(int j = 0; j < merge_inverse.sched.size()-1; j++)
-					if(merge_inverse.sched.get(j).between(merge.sched.get(i), merge.sched.get(i+1)))
-						right_counter = j;
+				System.out.println("real"+i);
+
+				if(i==0 && i == merge.sched.size()-1)
+				{
+					for(int j = merge_inverse.sched.size()-1; j >= 0; j--)
+						if(merge_inverse.sched.get(j).before(merge.sched.get(i)))
+						{
+							left_counter = j;
+							break;
+						}
+					for(int j = 0; j <merge_inverse.sched.size(); j++)
+						if(merge_inverse.sched.get(j).after(merge.sched.get(i)))
+						{
+							right_counter = j;
+							break;
+						}
+				}
+				else if(i == 0)
+				{
+					for(int j = merge_inverse.sched.size()-1; j >= 0; j--)
+						if(merge_inverse.sched.get(j).before(merge.sched.get(i)))
+						{
+							left_counter = j;
+							break;
+						}
+					for(int j = 0; j < merge_inverse.sched.size()-1; j++)
+						if(merge_inverse.sched.get(j).between(merge.sched.get(i), merge.sched.get(i+1)))
+							right_counter = j;
+
+				}
+				else if(i == merge.sched.size()-1) 
+				{
+					for(int j = 0; j <merge_inverse.sched.size(); j++)
+						if(merge_inverse.sched.get(j).after(merge.sched.get(i)))
+						{
+							right_counter = j;
+							break;
+						}
+					for(int j = 1; j < merge_inverse.sched.size(); j++)
+						if(merge_inverse.sched.get(j).between(merge.sched.get(i-1), merge.sched.get(i)))
+							left_counter = j;
+				}
+				else {
+					for(int j = 1; j < merge_inverse.sched.size(); j++)
+						if(merge_inverse.sched.get(j).between(merge.sched.get(i-1), merge.sched.get(i)))
+							left_counter = j;
+					for(int j = 0; j < merge_inverse.sched.size()-1; j++)
+						if(merge_inverse.sched.get(j).between(merge.sched.get(i), merge.sched.get(i+1)))
+							right_counter = j;
+				}
+
 			}
+		}
 		for(int j = 0; j < merge_inverse.sched.size(); j++)
 			if(merge_inverse.sched.get(j).timeInInterval(prefer))
 			{
+				System.out.println("inverse");
+				Interval interval = new Interval(prefer,merge_inverse.sched.get(j).end );
+				if(interval.getSize() > dur) 
+					return prefer;
+				if(	merge_inverse.sched.get(j).getSize() > dur) 
+					{
+						ans.setTimeInMillis(merge_inverse.sched.get(j).end.getTimeInMillis() - (long)dur);
+						return ans;
+					}
 				left_counter = j;
 				right_counter = j;
 			}
-		Calendar ans = Calendar.getInstance();
 		System.out.println("left "+left_counter);
 		System.out.println("right "+right_counter);
 
@@ -155,6 +211,7 @@ public class Meeting_Validation extends HttpServlet {
 			{
 				if(	merge_inverse.sched.get(left_counter).getSize() > dur) {
 					 ans.setTimeInMillis(merge_inverse.sched.get(left_counter).end.getTimeInMillis() - (long)dur);
+					 System.out.println(left_counter);
 					 break;
 				}
 				else
@@ -164,7 +221,9 @@ public class Meeting_Validation extends HttpServlet {
 			{
 				System.out.println(merge_inverse.sched.get(right_counter).getSize());
 				if(	merge_inverse.sched.get(right_counter).getSize() > dur) {
-					 ans.setTimeInMillis(merge_inverse.sched.get(right_counter).end.getTimeInMillis() - (long) dur);
+					 ans.setTimeInMillis(merge_inverse.sched.get(right_counter).start.getTimeInMillis() + (long) dur);
+					 System.out.println(right_counter);
+
 					 break;
 				}
 				else
@@ -172,51 +231,6 @@ public class Meeting_Validation extends HttpServlet {
 			}
 		}
 		return ans;
-/*
-		Schedule merge = ss.merge();
-		Schedule merge_inverse = merge.getInverse();
-		int left_counter = 0;
-		int right_counter = 0;
-		for(int i = 0; i < merge.sched.size();i++)
-			if(merge.sched.get(i).timeInInterval(prefer))
-			{
-				for(int j = 1; j < merge_inverse.sched.size(); j++)
-					if(merge_inverse.sched.get(j).between(merge.sched.get(i-1), merge.sched.get(i)))
-						left_counter = j;
-				for(int j = 0; j < merge_inverse.sched.size()-1; j++)
-					if(merge_inverse.sched.get(j).between(merge.sched.get(i), merge.sched.get(i+1)))
-						right_counter = j;
-			}
-		for(int j = 0; j < merge_inverse.sched.size(); j++)
-			if(merge_inverse.sched.get(j).timeInInterval(prefer))
-			{
-				left_counter = j;
-				right_counter = j;
-			}
-		Calendar ans = Calendar.getInstance();
-
-		while(left_counter >=0 && right_counter < merge_inverse.sched.size())
-		{
-			if(merge_inverse.sched.get(left_counter).isCloser(merge_inverse.sched.get(right_counter), prefer))
-			{
-				if(	merge_inverse.sched.get(left_counter).getSize() < dur) {
-					 ans.setTimeInMillis(merge_inverse.sched.get(left_counter).end.getTimeInMillis() - dur);
-					 break;
-				}
-				else
-					left_counter --;
-			}
-			else
-			{
-				if(	merge_inverse.sched.get(right_counter).getSize() < dur) {
-					 ans.setTimeInMillis(merge_inverse.sched.get(right_counter).end.getTimeInMillis() - dur);
-					 break;
-				}
-				else
-					right_counter ++;
-			}
-		}
-		return ans;*/
 	}
 	
 	public static void doLocation(String loc)

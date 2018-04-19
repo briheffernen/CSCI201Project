@@ -15,7 +15,11 @@ public class Event {
 	
 	public Event(String s, String e, String d)
 	{
+		//System.out.println("Event start "+s);
+		//System.out.println("Event end "+e);
+
 		s=cleanDate(s);
+		
 		e = cleanDate(e);
 		start = Calendar.getInstance();
 		end = Calendar.getInstance();
