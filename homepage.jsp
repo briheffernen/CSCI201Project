@@ -80,16 +80,17 @@ String fin = url+scope+access+redirect+re+client;
 System.out.println(fin);
 
 %>
+
 <body>
 	<nav class="navbar navbar-light bg-light navbar-expand-sm fixed-top">
-	<a href="#" class="navbar-brand">When and Where</a>
+	<a href="homepage.jsp" class="navbar-brand"><img src = "WhenWhereLogo.png" style="width:100px;height:50px;"></a>
 	<button class="navbar-toggler" data-toggle="collapse"
 		data-target="#navbarCollapse">
 		<span class="navbar-toggler-icon"></span>
 	</button>
 	<div class="collapse navbar-collapse" id="navbarCollapse">
 		<ul class="navbar-nav ml-auto">
-			<li class="navbar-item"><a href="http://localhost:8080/FinalProjTeam/profile.jsp" class="nav-link">Profile</a>
+			<li class="navbar-item"><a href="#" class="nav-link">Profile</a>
 			</li>
 			<li class="navbar-item"><a href="#" class="nav-link">Settings</a>
 			</li>
@@ -123,7 +124,7 @@ System.out.println(fin);
 					<!-- .form-group -->
 				</div>
 			</form>
-			<form action="" method="GET" id="createMeeting">
+			<form action="CreateMeeting.jsp" method="GET" id="createMeeting">
 				<div class="centerme">
 					<input type="hidden" name="meetingAddress" id="meetingAddress"
 						value="">
@@ -163,11 +164,11 @@ System.out.println(fin);
 						<!-- Where the results go -->
 						<tr>
 							<td>1</td>
-							<td><a href="userprofile.jsp?userID=4">Tommy Trojan</a></td>
+							<td><a href="profile.jsp?userID=4">Tommy Trojan</a></td>
 						</tr>
 						<tr>
 							<td>2</td>
-								<td><a href="userprofile.jsp?userID=5">Jessie Locke</a></td>
+								<td><a href="profile.jsp?userID=5">Jessie Locke</a></td>
 						</tr>
 					</tbody>
 				</table>
@@ -359,6 +360,8 @@ System.out.println(fin);
 					mapOptions);
 			geocoder = new google.maps.Geocoder;
 			infoWindow = new google.maps.InfoWindow;
+			
+			
 			// Try HTML5 geolocation.
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(position) {
@@ -395,108 +398,46 @@ System.out.println(fin);
 								: 'Error: Your browser doesn\'t support geolocation.');
 				infoWindow.open(map);
 			}
-			google.maps.event.addListener(map, 'click',
-					function(event) {
-						placeMarker(event.latLng);
-						geocodeLatLng(geocoder, map, infoWindow, event.latLng,
-								"click");
-					});
-			// this function places the marker and populates the search input 
-			function placeMarker(location) {
-				if (typeof marker !== 'undefined') {
-					marker.setMap(null);
-				}
-				marker = new google.maps.Marker({
-					position : location,
-					map : map,
-				// icon: {
-				//     url: 'images/currentLocationMarker2.png',
-				//     scaledSize: new google.maps.Size(24,24)
-				// }
-				});
-			}
-			// this function converts geocode (latitude and longitude) to a recognizable address
-			function geocodeLatLng(geocoder, map, infoWindow, latlng,
-					requestType) {
-				geocoder
-						.geocode(
-								{
-									'location' : latlng
-								},
-								function(results, status) {
-									if (status === 'OK') {
-										if (results[0]) {
-											infoWindow
-													.setContent(results[0].formatted_address);
-											infoWindow.open(map, marker);
-											if (requestType == "click") {
-												document
-														.getElementById("address").value = results[0].formatted_address;
-											}
-											validQuery = results[0].formatted_address;
-											document
-													.getElementById('meetingAddress').value = validQuery;
-											console
-													.log(document
-															.getElementById('meetingAddress').value);
-											enableCreateMeetingButton();
-										} else {
-											window.alert('No results found');
-										}
-									} else {
-										window.alert('Geocoder failed due to: '
-												+ status);
-									}
-								});
-			}
-			/*
-			// Add a marker
-			var marker = new google.maps.Marker({
-			    position: {
-			        lat: 34.0224,
-			        lng: -118.2851
-			    },
-			    // In which map is the marker set
-			    map: map,
-			    //you can put a custom icon in here
-			    icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
-			});
-			var infoWindow = new google.maps.InfoWindow({
-			    content:'<h1>University of Southern California</h1>'
-			});
-			marker.addListener('click', function(){
-			    infoWindow.open(map,marker);
-			})
-			 */
-			//     addMarker('private', {lat: 34.0224, lng: -118.2851});
-			//     addMarker('public', {lat:34.025754, lng: -118.277299});
-			//     // Add Marker Function -> a function to add a marker
-			//     function addMarker(type, coords) {
-			//         var marker = new google.maps.Marker({
-			//             position: coords,
-			//             // In which map is the marker set
-			//             map: map,
-			//             //you can put a custom icon in here
-			//             icon: {
-			//  url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-			//  // size: new google.maps.Size(36, 36),
-			//  // anchor: new google.maps.Point(48,48),
-			//  scaledSize: new google.maps.Size(36, 36),
-			// }
-			//         });
-			//         // if(type == 'private') {
-			//         //   console.log("in here at all?");
-			//         //   // marker.setIcon('https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png');
-			//         //   marker.setIcon('images/example.png')
-			//         // }
-			//         // else if (type == 'public') {
-			//         //   console.log("only once");
-			//         //   // marker.setIcon = default;
-			//         // }
-			//     }
-			var marker = new google.maps.Marker({
-				map : map
-			});
+			google.maps.event.addListener(map,'click',function(event) {
+				placeMarker(event.latLng);
+ 				
+		        if (event.placeId) {
+		          getname(event.placeId)
+		        } else {
+		          geocoder.geocode({
+		                'latLng': event.latLng
+		              },
+		              function(results, status) {
+		                if (status == google.maps.GeocoderStatus.OK) {
+		                	
+		                  if (results[0]) {
+		      				infoWindow.setContent(results[0].formatted_address);
+		      				infoWindow.open(map, marker); 
+		    					map.setCenter(results[0].geometry.location);
+		    					marker.setPosition(results[0].geometry.location);
+		                    	getname(results[0].place_id);
+		                    
+		                  }
+		                }
+		              });
+		        }
+		      });
+		  function getname(place_id) {
+		    var placesService = new google.maps.places.PlacesService(map);
+		    placesService.getDetails({
+		      placeId: place_id
+		    }, function(results, status) {
+				//infoWindow.setContent(results.formatted_address);
+				//infoWindow.open(map, marker); 
+				
+				document.getElementById("address").value = results.name;
+				validQuery = results.name;
+				document.getElementById('meetingAddress').value = validQuery;
+				console.log(document.getElementById('meetingAddress').value);
+				enableCreateMeetingButton();
+		    });
+		  }
+		
 			//This function generates 
 			document.querySelector("#google-form").onsubmit = function() {
 				var addressInput = document.querySelector("#address").value
@@ -523,7 +464,26 @@ System.out.println(fin);
 				}
 				return false;
 			}
+		  
 		}
+		
+		
+			// this function places the marker and populates the search input 
+ 			function placeMarker(location) {
+				if (typeof marker !== 'undefined') {
+					marker.setMap(null);
+				}
+				marker = new google.maps.Marker({
+					position : location,
+					map : map,
+				// icon: {
+				//     url: 'images/currentLocationMarker2.png',
+				//     scaledSize: new google.maps.Size(24,24)
+				// }
+				});
+			}
+ 
+
 		//====================================== Creating a Meeting ===================================================
 		//These functions define the disable and enable createMeeting buttons
 		function enableCreateMeetingButton() {
@@ -531,32 +491,10 @@ System.out.println(fin);
 				document.getElementById("createmeeting_button").disabled = false;
 			}
 		}
-		// function disableCreateMeetingButton() {
-		//     document.getElementById("createmeeting_button").disabled = true;
-		// }
-		// document.getElementById("address").oninput = function() {
-		//     if (document.getElementById("address").value.length == 0) {
-		//         document.getElementById("createmeeting_button").disabled = false;
-		//     } else {
-		//         document.getElementById("createmeeting_button").disabled = true;
-		//     }
-		// }
-		//This function disables and enables the Create Meeting button
-		// document.getElementById("address").addEventListener('input', function() {
-		//     console.log(document.getElementById("address").value);
-		//     console.log("valid query: " + validQuery);
-		//     if ((document.getElementById("address").value !== "") && (document.getElementById("createmeeting_button").disabled = false)) {
-		//         validQuery = document.getElementById("address").value;
-		//         disableCreateMeetingButton();
-		//     } else if (document.getElementById("address").value.toUpperCase() == validQuery.toUpperCase()) {
-		//         enableCreateMeetingButton();
-		//     } else {
-		//         disableCreateMeetingButton();
-		//     }
-		// });
+	
 	</script>
 	<script
-		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDMq8as6Z4xmPfIl3HhLkngsd_PUmzL6wc&callback=initMap"></script>
+		src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCDV9Wi54vI3fIhOxEBHJDokoiEMAiLGu8&libraries=places&callback=initMap"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
 		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 		crossorigin="anonymous"></script>
