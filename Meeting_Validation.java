@@ -43,7 +43,6 @@ public class Meeting_Validation extends HttpServlet {
 
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String loc = request.getParameter("locs").trim();
 		
     	String date = request.getParameter("date");
     	String time = request.getParameter("time");
@@ -74,7 +73,6 @@ public class Meeting_Validation extends HttpServlet {
     	String timedate = "'"+aaa.format((Date)set_time.getTime())+"'";
     	String next = "/Meeting.jsp";
     	
-    	System.out.println(loc);
     	System.out.println(date);
     	System.out.println(time);
     	Connection conn = null;
@@ -121,6 +119,56 @@ public class Meeting_Validation extends HttpServlet {
 			Thread.yield();
 		}
 		Schedule merge = ss.merge();
+		dur = dur*60*60*1000;
+		Schedule merge_inverse = merge.getInverse();
+		int left_counter = 0;
+		int right_counter = 0;
+		for(int i = 0; i < merge.sched.size();i++)
+			if(merge.sched.get(i).timeInInterval(prefer))
+			{
+				for(int j = 1; j < merge_inverse.sched.size(); j++)
+					if(merge_inverse.sched.get(j).between(merge.sched.get(i-1), merge.sched.get(i)))
+						left_counter = j;
+				for(int j = 0; j < merge_inverse.sched.size()-1; j++)
+					if(merge_inverse.sched.get(j).between(merge.sched.get(i), merge.sched.get(i+1)))
+						right_counter = j;
+			}
+		for(int j = 0; j < merge_inverse.sched.size(); j++)
+			if(merge_inverse.sched.get(j).timeInInterval(prefer))
+			{
+				left_counter = j;
+				right_counter = j;
+			}
+		Calendar ans = Calendar.getInstance();
+		System.out.println("left "+left_counter);
+		System.out.println("right "+right_counter);
+
+		while(left_counter >=0 && right_counter < merge_inverse.sched.size())
+		{
+			System.out.println("here");
+			if(merge_inverse.sched.get(left_counter).isCloser(merge_inverse.sched.get(right_counter), prefer))
+			{
+				if(	merge_inverse.sched.get(left_counter).getSize() > dur) {
+					 ans.setTimeInMillis(merge_inverse.sched.get(left_counter).end.getTimeInMillis() - (long)dur);
+					 break;
+				}
+				else
+					left_counter --;
+			}
+			else
+			{
+				System.out.println(merge_inverse.sched.get(right_counter).getSize());
+				if(	merge_inverse.sched.get(right_counter).getSize() > dur) {
+					 ans.setTimeInMillis(merge_inverse.sched.get(right_counter).end.getTimeInMillis() - (long) dur);
+					 break;
+				}
+				else
+					right_counter ++;
+			}
+		}
+		return ans;
+/*
+		Schedule merge = ss.merge();
 		Schedule merge_inverse = merge.getInverse();
 		int left_counter = 0;
 		int right_counter = 0;
@@ -163,10 +211,10 @@ public class Meeting_Validation extends HttpServlet {
 					right_counter ++;
 			}
 		}
-		return ans;
+		return ans;*/
 	}
 	
-	protected void doLocation(String loc)
+	public static void doLocation(String loc)
 	{
 		Connection conn = null;
 		Statement st = null;
@@ -176,14 +224,16 @@ public class Meeting_Validation extends HttpServlet {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/Final?user=root&password=root&useSSL=false");
 			st = conn.createStatement();
-			ps = conn.prepareStatement("SELECT * FROM location WHERE locName='"+loc+"')");
+			String sel = "SELECT * FROM location WHERE locName='"+loc+"'";
+			System.out.println(sel);
+			ps = conn.prepareStatement(sel);
 			rs = ps.executeQuery();
 			String arg="";
 			if(!rs.next())
 			{
 				 st = (Statement) conn.createStatement();
-				 arg += "INSERT INTO meeting(locName) VALUES(";
-				 arg+=loc;
+				 arg += "INSERT INTO Location(locName) VALUES(";
+				 arg+="'"+loc+"'";
 				 arg+=");";
 				 System.out.println(arg);
 				 st.execute(arg);
@@ -194,8 +244,6 @@ public class Meeting_Validation extends HttpServlet {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);

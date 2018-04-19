@@ -25,34 +25,39 @@ public class Merge extends RecursiveTask<Schedule> {
         			  a_index++;
         			  b_index++;
         		  }
-        		  if(a.sched.get(a_index).before(b.sched.get(b_index)))
+        		  else if(a.sched.get(a_index).before(b.sched.get(b_index)))
         		  {
         			  inter = a.sched.get(a_index);
         			  a_index++;
         		  }
-        		  if(a.sched.get(a_index).after(b.sched.get(b_index)))
+        		  else if(a.sched.get(a_index).after(b.sched.get(b_index)))
         		  {
         			  inter = b.sched.get(b_index);
         			  b_index++;
         		  }
     		  }
-    		  if(a_index == a.sched.size())
+    		  else if(a_index == a.sched.size())
     		  {
     			  inter = b.sched.get(b_index);
     			  b_index++;
     		  }
-       		  if(b_index == b.sched.size())
+    		  else if(b_index == b.sched.size())
     		  {
     			  inter = a.sched.get(a_index);
     			  a_index++;
     		  }
-       		  if(s.sched.get(s.sched.size()-1).intersect(inter))
+    		  if(s.sched.size() != 0 && s.sched.get(s.sched.size()-1).intersect(inter))
        		  {
        			  inter = s.sched.get(s.sched.size()-1).merge(inter);
        			  s.sched.remove(s.sched.size()-1);
        		  }
+    		  //inter.print();
        		  s.sched.add((inter));
     	  }
+    	  //System.out.println("merged sched");
+    	  //s.print();
+    	  //System.out.println("merged end");
+
       return s;
     }
 }
