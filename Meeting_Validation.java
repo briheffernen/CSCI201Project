@@ -1,30 +1,27 @@
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import jsons.*;
 
@@ -47,16 +44,36 @@ public class Meeting_Validation extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String loc = request.getParameter("locs").trim();
+		
     	String date = request.getParameter("date");
     	String time = request.getParameter("time");
+    	String prefdate = request.getParameter("prefdate");
+    	String preftime = request.getParameter("preftime");
+    	
     	String duration = request.getParameter("duration");
     	String names[] = request.getParameterValues("membername");
     	String name = request.getParameter("name");
     	for(int i = 0; i < names.length;i++)
     		System.out.println(names[i]);
+    	
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
     	String location = "randomlocation";
-    	String timedate = "'1999-04-26 13:00:00'";
-    	String next = "/what.jsp";
+    	Calendar deadline = Calendar.getInstance();
+    	Calendar prefer = Calendar.getInstance();
+
+    	try {
+			deadline.setTime(sdf.parse(date+" "+time));
+			prefer.setTime(sdf.parse(prefdate+" "+preftime));
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		SimpleDateFormat aaa = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+
+    	Calendar set_time = getTimes(names, deadline, prefer,Integer.parseInt(duration)*60*60*1000);
+    	String timedate = "'"+aaa.format((Date)set_time.getTime())+"'";
+    	String next = "/Meeting.jsp";
+    	
     	System.out.println(loc);
     	System.out.println(date);
     	System.out.println(time);
@@ -68,7 +85,7 @@ public class Meeting_Validation extends HttpServlet {
 	    	 String arg ="";
 	    	 conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/Final?user=root&password=root&useSSL=false");
 			 Statement st = (Statement) conn.createStatement();
-			 arg += "INSERT INTO meeting(meetingTime,meetingLocation,meetingName) VALUES(";
+			 arg += "INSERT INTO meeting(timedate,meetingLocation,meetingName) VALUES(";
 			 arg += timedate+",\""+location+"\",\""+name+"\"";
 			 arg+=");";
 			 System.out.println(arg);
@@ -80,9 +97,8 @@ public class Meeting_Validation extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
-		 //System.out.println(arg);
-		//RequestDispatcher dispatch = getServletContext().getRequestDispatcher(next);
-		/*
+    	RequestDispatcher dispatch = getServletContext().getRequestDispatcher(next);
+		
     	try {
     		dispatch.forward(request,response);
 		} catch (IOException e) {
@@ -91,61 +107,65 @@ public class Meeting_Validation extends HttpServlet {
 		} catch (ServletException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
-	protected LocalDateTime[] getTimes(String []names, LocalDateTime deadline) {
-		Schedule s = new Schedule(LocalDateTime.now(),deadline);
-		for(int i = 0; i < names.length;i++)
-		{
-			URL url;
-			String authorizationToken="";
-			try {
-				url = new URL("https://www.googleapis.com/calendar/v3/calendars/primary/events");
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod("GET");
-				con.setRequestProperty("Authorization", "Bearer " + authorizationToken);
-				int status = con.getResponseCode();
-				System.out.println(status);
+	protected Calendar getTimes(String []names, Calendar deadline, Calendar prefer, long dur) {
+		
+		ScheduleSet ss = new ScheduleSet();
+		ExecutorService executor = Executors.newCachedThreadPool();
+		Calendar start = Calendar.getInstance();
+		for(int i = 0; i < names.length;i++)//For each user
+			executor.execute(new AddUserToScheduleSet(names[i], ss, start, deadline));
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+			Thread.yield();
+		}
+		Schedule merge = ss.merge();
+		Schedule merge_inverse = merge.getInverse();
+		int left_counter = 0;
+		int right_counter = 0;
+		for(int i = 0; i < merge.sched.size();i++)
+			if(merge.sched.get(i).timeInInterval(prefer))
+			{
+				for(int j = 1; j < merge_inverse.sched.size(); j++)
+					if(merge_inverse.sched.get(j).between(merge.sched.get(i-1), merge.sched.get(i)))
+						left_counter = j;
+				for(int j = 0; j < merge_inverse.sched.size()-1; j++)
+					if(merge_inverse.sched.get(j).between(merge.sched.get(i), merge.sched.get(i+1)))
+						right_counter = j;
+			}
+		for(int j = 0; j < merge_inverse.sched.size(); j++)
+			if(merge_inverse.sched.get(j).timeInInterval(prefer))
+			{
+				left_counter = j;
+				right_counter = j;
+			}
+		Calendar ans = Calendar.getInstance();
 
-				BufferedReader in = new BufferedReader(
-						  new InputStreamReader(con.getInputStream()));
-						String inputLine;
-						StringBuffer content = new StringBuffer();
-						while ((inputLine = in.readLine()) != null) {
-						    content.append(inputLine);
-						}
-						in.close();
-				con.disconnect();
-				String json = content.toString();	
-	    	    //System.out.println(json);
-	    	    JsonParser parser = new JsonParser();
-	    		JsonElement jsonTree = parser.parse(json);
-	    		JsonObject jsonObject = jsonTree.getAsJsonObject();	
-	    		JsonArray arr = jsonObject.get("items").getAsJsonArray();
-	    		for(int index = 0; index < arr.size();i++ )
-	    		{
-	    			String start = arr.get(index).getAsJsonObject().get("start").getAsJsonObject().get("dateTime").getAsString();
-	    			String end = arr.get(index).getAsJsonObject().get("end").getAsJsonObject().get("dateTime").getAsString();
-		    		JsonElement rec = arr.get(index).getAsJsonObject().get("recurrence");
-		    		String recurrence = "";
-		    		if(rec!=null)
-		    			 recurrence = rec.getAsJsonArray().get(0).getAsString();
-		    		Event e = new Event(start,end,recurrence);
-		    		s.merge(e.getSchedule(s.start, s.deadline));
-	    		}
-	
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (ProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		while(left_counter >=0 && right_counter < merge_inverse.sched.size())
+		{
+			if(merge_inverse.sched.get(left_counter).isCloser(merge_inverse.sched.get(right_counter), prefer))
+			{
+				if(	merge_inverse.sched.get(left_counter).getSize() < dur) {
+					 ans.setTimeInMillis(merge_inverse.sched.get(left_counter).end.getTimeInMillis() - dur);
+					 break;
+				}
+				else
+					left_counter --;
+			}
+			else
+			{
+				if(	merge_inverse.sched.get(right_counter).getSize() < dur) {
+					 ans.setTimeInMillis(merge_inverse.sched.get(right_counter).end.getTimeInMillis() - dur);
+					 break;
+				}
+				else
+					right_counter ++;
 			}
 		}
-		return null;
+		return ans;
 	}
+	
 	protected void doLocation(String loc)
 	{
 		Connection conn = null;
@@ -169,18 +189,15 @@ public class Meeting_Validation extends HttpServlet {
 				 st.execute(arg);
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} // anything done after this line will be using this driver
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
