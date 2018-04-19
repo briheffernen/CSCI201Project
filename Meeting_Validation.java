@@ -88,6 +88,11 @@ public class Meeting_Validation extends HttpServlet {
 			 arg+=");";
 			 System.out.println(arg);
 			 st.execute(arg);
+			 String sel = "SELECT * FROM meeting WHERE meetingName='"+name+"'";
+				System.out.println(sel);
+				ps = conn.prepareStatement(sel);
+				rs = ps.executeQuery();
+				addUsers(names, rs.getInt("meeting_Id"));
 			 doLocation(location);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -244,6 +249,31 @@ public class Meeting_Validation extends HttpServlet {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	public static void addUsers(String [] names, int meeting_id)
+	{
+		for(int i = 0; i < names.length;i++) {
+		Connection conn = null;
+		Statement st = null;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/Final?user=root&password=root&useSSL=false");
+			String arg="";
+			st = conn.createStatement();
+				 st = (Statement) conn.createStatement();
+				 arg += "INSERT INTO meeting_users(meetingId, userID) VALUES(";
+				 arg+=meeting_id+",";
+				 arg+="'"+names[i]+"'";
+				 arg+=");";
+				 System.out.println(arg);
+				 st.execute(arg);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} // anything done after this line will be using this driver
+		catch (SQLException e) {
+			e.printStackTrace();
+		}}
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
